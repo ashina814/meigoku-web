@@ -8,9 +8,10 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  robots?: string;
 }
 
-const { title, description = siteConfig.defaultDescription } = Astro.props;
+const { title, description = siteConfig.defaultDescription, robots = siteConfig.robots } = Astro.props;
 const pageTitle = createPageTitle(title);
 const canonicalUrl = createCanonicalUrl(Astro.url.pathname);
 const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUrl).href : undefined;
@@ -22,7 +23,7 @@ const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUr
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="description" content={description} />
-    <meta name="robots" content={siteConfig.robots} />
+    <meta name="robots" content={robots} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />

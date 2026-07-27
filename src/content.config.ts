@@ -9,10 +9,8 @@ const publicationFields = {
   sourceState: z.enum(["confirmed", "analysis", "trial", "proposal", "unconfirmed"]),
   publishState: z.enum(["draft", "review", "approved", "hidden"]),
   visibility: z.enum(["public", "internal"]),
-  sourceRefs: z.array(z.string()),
+  publicSourceKeys: z.array(z.string()),
   lastReviewedAt: z.string(),
-  approvedBy: z.string().optional(),
-  approvedAt: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   image: z.string().optional()

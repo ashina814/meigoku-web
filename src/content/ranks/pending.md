@@ -5,7 +5,7 @@ order: 0
 sourceState: "unconfirmed"
 publishState: "draft"
 visibility: "internal"
-sourceRefs: []
+publicSourceKeys: []
 lastReviewedAt: ""
 ---
 
