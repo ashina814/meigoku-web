@@ -1,0 +1,16 @@
+/* 仮値。デザイン仕様の確定後に、このファイルの値を置き換える。 */
+:root {
+  --color-background: #111111;
+  --color-surface: #1a1a1a;
+  --color-text: #f2f2f2;
+  --color-muted: #b7b7b7;
+  --color-accent: #8a6dff;
+
+  --font-body: system-ui, sans-serif;
+  --font-heading: system-ui, sans-serif;
+
+  --content-width: 72rem;
+  --space-section: 5rem;
+  --radius-small: 0.25rem;
+  --radius-medium: 0.5rem;
+}

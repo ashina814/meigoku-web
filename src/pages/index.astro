@@ -1,0 +1,25 @@
+---
+import HomeSection from "../components/home/HomeSection.astro";
+import PlaceholderNotice from "../components/ui/PlaceholderNotice.astro";
+import { homeSections } from "../data/home";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="トップ">
+  <section aria-labelledby="hero-title">
+    <div class="container">
+      <h1 id="hero-title">冥獄城</h1>
+      <PlaceholderNotice>【公開原稿確認中】</PlaceholderNotice>
+    </div>
+  </section>
+
+  {homeSections.map((section) => <HomeSection {...section} />)}
+
+  <section aria-labelledby="join-cta-title">
+    <div class="container">
+      <h2 id="join-cta-title">入城案内</h2>
+      <PlaceholderNotice>【承認後に掲載】</PlaceholderNotice>
+      <p><a href="/join">入城案内を見る</a></p>
+    </div>
+  </section>
+</BaseLayout>

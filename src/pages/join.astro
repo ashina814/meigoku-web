@@ -1,0 +1,24 @@
+---
+import PlaceholderNotice from "../components/ui/PlaceholderNotice.astro";
+import { joinConfig, recruitmentMessages } from "../data/join";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const recruitmentMessage = recruitmentMessages[joinConfig.recruitmentState];
+---
+
+<BaseLayout title="入城案内">
+  <article class="container">
+    <header>
+      <h1>入城案内</h1>
+    </header>
+    <section aria-labelledby="recruitment-title">
+      <h2 id="recruitment-title">受付状況</h2>
+      <p>{recruitmentMessage}</p>
+      {joinConfig.inviteUrl && <p><a href={joinConfig.inviteUrl}>入城案内を開く</a></p>}
+    </section>
+    <section aria-labelledby="details-title">
+      <h2 id="details-title">案内の詳細</h2>
+      <PlaceholderNotice>【公開原稿確認中】</PlaceholderNotice>
+    </section>
+  </article>
+</BaseLayout>
