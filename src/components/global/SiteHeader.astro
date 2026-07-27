@@ -1,0 +1,16 @@
+---
+import MainNavigation from "./MainNavigation.astro";
+
+interface Props {
+  currentPath: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<header>
+  <div class="container">
+    <a href="/" aria-label="冥獄城トップへ">冥獄城</a>
+    <MainNavigation currentPath={currentPath} />
+  </div>
+</header>

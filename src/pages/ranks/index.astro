@@ -1,0 +1,36 @@
+---
+import { getCollection } from "astro:content";
+import PlaceholderNotice from "../../components/ui/PlaceholderNotice.astro";
+import { isPubliclyVisible } from "../../lib/publication";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const publicRanks = await getCollection("ranks", (entry) => isPubliclyVisible(entry.data));
+---
+
+<BaseLayout title="身分・階級">
+  <article class="container">
+    <header>
+      <h1>身分・階級</h1>
+    </header>
+    <section aria-labelledby="difference-title">
+      <h2 id="difference-title">身分と役職の違いに関する案内</h2>
+      <PlaceholderNotice>【公開原稿確認中】</PlaceholderNotice>
+    </section>
+    <section aria-labelledby="status-title">
+      <h2 id="status-title">身分導線</h2>
+      <PlaceholderNotice>【承認後に掲載】</PlaceholderNotice>
+    </section>
+    <section aria-labelledby="role-title">
+      <h2 id="role-title">評価に関わる役職</h2>
+      <PlaceholderNotice>【説明文未確定】</PlaceholderNotice>
+    </section>
+    {publicRanks.length > 0 && (
+      <section aria-labelledby="published-ranks-title">
+        <h2 id="published-ranks-title">公開済みの身分・階級情報</h2>
+        <ul>
+          {publicRanks.map((rank) => <li>{rank.data.title}</li>)}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>
