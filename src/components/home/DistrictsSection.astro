@@ -1,0 +1,14 @@
+---
+import { districtExtras, districts } from "../../data/home";
+import SectionHeading from "../ui/SectionHeading.astro";
+---
+
+<section id="districts" class="home-section home-section--districts" aria-labelledby="districts-title">
+  <div class="home-section__inner">
+    <SectionHeading id="districts-title" index="05" title="城には、いくつもの居場所がある" />
+    <div class="district-windows">
+      {districts.map((district, index) => <article class={`district-window district-window--${index + 1}`} data-reveal><p>【素材未確定】</p><h3>{district}</h3></article>)}
+    </div>
+    <p class="districts-extra">ほかにも、{districtExtras.join("・")}などの区画があります。城内案内は【公開内容確認中】</p>
+  </div>
+</section>

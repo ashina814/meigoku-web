@@ -1,0 +1,19 @@
+---
+import { soulJourney } from "../../data/home";
+import SectionHeading from "../ui/SectionHeading.astro";
+---
+
+<section id="journey" class="home-section" aria-labelledby="journey-title">
+  <div class="home-section__inner">
+    <SectionHeading id="journey-title" index="04" title="魂の歩み" />
+    <ol class="journey-list">
+      {soulJourney.map(([title, description], index) => (
+        <li data-reveal>
+          <span class="journey-list__number">0{index + 1}</span>
+          <h3>{title}{title === "魔族" && <small>FULL MEMBER</small>}</h3>
+          <p>{description}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

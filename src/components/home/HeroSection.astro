@@ -1,0 +1,22 @@
+---
+import { homeAssets, homeHero } from "../../data/home";
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__image" aria-hidden="true" style={`--castle-image: url(${homeAssets.castlePlaceholder})`}></div>
+  <div class="hero__shade" aria-hidden="true"></div>
+  <div class="hero__content">
+    <p class="eyebrow">MEIGOKU CASTLE / OFFICIAL SITE</p>
+    <div class="hero__copy">
+      <h1 id="hero-title">{homeHero.title}</h1>
+      <p>{homeHero.lead}</p>
+    </div>
+    <div class="hero__bottom">
+      <p class="hero__description">{homeHero.description}</p>
+      <div class="cta-group">
+        <a class="cta cta--primary" href="/join">城門を叩く <span aria-hidden="true">→</span></a>
+        <a class="cta cta--secondary" href="/world">冥獄城を知る</a>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,18 @@
+---
+import { soulStages } from "../../data/home";
+import SectionHeading from "../ui/SectionHeading.astro";
+---
+
+<section id="named-soul" class="home-section home-section--soul" aria-labelledby="named-soul-title">
+  <div class="home-section__inner">
+    <SectionHeading id="named-soul-title" index="03" title="名を持つ魂になる" />
+    <div class="named-soul__copy" data-reveal>
+      <p>好きなものを話す。<br />日常を記す。<br />作品を見せる。<br />誰かの企画へ参加する。</p>
+      <p>そうした積み重ねが、あなたを知ってもらうためのきっかけになります。</p>
+      <p class="named-soul__note">会話、日記、作品、企画など、あなたを知ってもらうためのきっかけが複数あります。</p>
+    </div>
+    <ol class="soul-stages" aria-label="名を持つ魂への歩み" data-reveal>
+      {soulStages.map((stage, index) => <li><span>0{index + 1}</span>{stage}</li>)}
+    </ol>
+  </div>
+</section>

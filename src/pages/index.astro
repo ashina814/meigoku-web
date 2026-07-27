@@ -1,25 +1,31 @@
 ---
-import HomeSection from "../components/home/HomeSection.astro";
-import PlaceholderNotice from "../components/ui/PlaceholderNotice.astro";
-import { homeSections } from "../data/home";
+import BeginnerFaqSection from "../components/home/BeginnerFaqSection.astro";
+import DistrictsSection from "../components/home/DistrictsSection.astro";
+import ExperiencesSection from "../components/home/ExperiencesSection.astro";
+import FinalCtaSection from "../components/home/FinalCtaSection.astro";
+import GateTransition from "../components/home/GateTransition.astro";
+import HeroSection from "../components/home/HeroSection.astro";
+import HomeMotion from "../components/home/HomeMotion.astro";
+import NamedSoulSection from "../components/home/NamedSoulSection.astro";
+import RolesSection from "../components/home/RolesSection.astro";
+import SoulJourneySection from "../components/home/SoulJourneySection.astro";
+import WorldSection from "../components/home/WorldSection.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/home.css";
 ---
 
-<BaseLayout title="トップ">
-  <section aria-labelledby="hero-title">
-    <div class="container">
-      <h1 id="hero-title">冥獄城</h1>
-      <PlaceholderNotice>【公開原稿確認中】</PlaceholderNotice>
-    </div>
-  </section>
-
-  {homeSections.map((section) => <HomeSection {...section} />)}
-
-  <section aria-labelledby="join-cta-title">
-    <div class="container">
-      <h2 id="join-cta-title">入城案内</h2>
-      <PlaceholderNotice>【承認後に掲載】</PlaceholderNotice>
-      <p><a href="/join">入城案内を見る</a></p>
-    </div>
-  </section>
+<BaseLayout title="名もなき魂よ、城門を叩け。" description="世界観の中で、人と出会い、名前・居場所・役割を育てるDiscordコミュニティ「冥獄城」の公式サイト。">
+  <div class="home-page">
+    <HeroSection />
+    <WorldSection />
+    <GateTransition />
+    <ExperiencesSection />
+    <NamedSoulSection />
+    <SoulJourneySection />
+    <DistrictsSection />
+    <RolesSection />
+    <BeginnerFaqSection />
+    <FinalCtaSection />
+  </div>
+  <HomeMotion />
 </BaseLayout>

@@ -1,16 +1,23 @@
-/* 仮値。デザイン仕様の確定後に、このファイルの値を置き換える。 */
+/* Home v3 design tokens. Replace only through approved design changes. */
 :root {
-  --color-background: #111111;
-  --color-surface: #1a1a1a;
-  --color-text: #f2f2f2;
-  --color-muted: #b7b7b7;
-  --color-accent: #8a6dff;
+  --color-exterior: #07060a;
+  --color-interior: #100c11;
+  --color-text: #ece7dd;
+  --color-muted: #b6b0b8;
+  --color-stone: #948d99;
+  --color-crimson: #b81f22;
+  --color-crimson-light: #e2685c;
+  --color-lantern: #e0b26a;
+  --color-lantern-light: #f3d79b;
+  --color-background: var(--color-exterior);
+  --color-surface: var(--color-interior);
+  --color-accent: var(--color-lantern);
 
-  --font-body: system-ui, sans-serif;
-  --font-heading: system-ui, sans-serif;
-
-  --content-width: 72rem;
-  --space-section: 5rem;
-  --radius-small: 0.25rem;
-  --radius-medium: 0.5rem;
+  --font-body: "Noto Sans JP", system-ui, sans-serif;
+  --font-heading: "Shippori Mincho", serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --content-width: 84rem;
+  --space-section: clamp(5rem, 10vw, 9rem);
+  --radius-small: 0;
+  --radius-medium: 0;
 }
