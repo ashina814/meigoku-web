@@ -7,12 +7,13 @@ import "../styles/global.css";
 
 interface Props {
   title?: string;
+  fullTitle?: string;
   description?: string;
   robots?: string;
 }
 
-const { title, description = siteConfig.defaultDescription, robots = siteConfig.robots } = Astro.props;
-const pageTitle = createPageTitle(title);
+const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots } = Astro.props;
+const pageTitle = fullTitle ?? createPageTitle(title);
 const canonicalUrl = createCanonicalUrl(Astro.url.pathname);
 const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUrl).href : undefined;
 ---
