@@ -1,0 +1,14 @@
+---
+import { roles } from "../../data/home";
+import SectionHeading from "../ui/SectionHeading.astro";
+---
+
+<section id="roles" class="home-section" aria-labelledby="roles-title">
+  <div class="home-section__inner">
+    <SectionHeading id="roles-title" index="06" title="城を動かす側へ" />
+    <div class="roles-layout">
+      <div data-reveal><p class="roles-layout__lead">役職は偉くなるための称号ではなく、城の活動を支える役割です。</p><p>得意や関心を、城の活動につなげられる役割があります。</p></div>
+      <ul data-reveal>{roles.map((role) => <li>{role}</li>)}</ul>
+    </div>
+  </div>
+</section>

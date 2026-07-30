@@ -1,0 +1,13 @@
+---
+import { faqs } from "../../data/home";
+import SectionHeading from "../ui/SectionHeading.astro";
+---
+
+<section id="faq" class="home-section home-section--faq" aria-labelledby="faq-title">
+  <div class="home-section__inner">
+    <SectionHeading id="faq-title" index="07" title="初めてでも大丈夫" />
+    <div class="faq-list" data-reveal>
+      {faqs.map(([question, answer]) => <details><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}
+    </div>
+  </div>
+</section>

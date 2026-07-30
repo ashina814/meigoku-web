@@ -1,0 +1,19 @@
+---
+import { experiences } from "../../data/home";
+import SectionHeading from "../ui/SectionHeading.astro";
+---
+
+<section id="experiences" class="home-section" aria-labelledby="experiences-title">
+  <div class="home-section__inner">
+    <SectionHeading id="experiences-title" index="02" title="この城で見つかるもの" />
+    <ol class="experience-list">
+      {experiences.map(([title, description], index) => (
+        <li class:list={["experience-list__item", { "experience-list__item--featured": index === 1 }]} data-reveal>
+          <span class="experience-list__number">0{index + 1}</span>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

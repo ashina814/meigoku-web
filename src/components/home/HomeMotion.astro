@@ -1,0 +1,46 @@
+<script>
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canReveal = "IntersectionObserver" in window && !reduceMotion && document.visibilityState === "visible";
+
+  if (canReveal) {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    try {
+      document.documentElement.classList.add("motion-ready");
+      const revealAll = () => nodes.forEach((node) => node.classList.add("is-revealed"));
+      const safetyTimer = window.setTimeout(revealAll, 1600);
+      const observer = new IntersectionObserver(
+        (entries) => entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-revealed");
+            observer.unobserve(entry.target);
+          }
+        }),
+        { rootMargin: "0px 0px -10%", threshold: 0.06 }
+      );
+      nodes.forEach((node) => observer.observe(node));
+      window.addEventListener("pagehide", () => { window.clearTimeout(safetyTimer); observer.disconnect(); }, { once: true });
+    } catch {
+      document.documentElement.classList.remove("motion-ready");
+    }
+  }
+
+  const desktop = window.matchMedia("(min-width: 768px)");
+  if (!reduceMotion && desktop.matches) {
+    const layers = Array.from(document.querySelectorAll<HTMLElement>("[data-parallax]"));
+    let queued = false;
+    const update = () => {
+      queued = false;
+      layers.forEach((layer) => {
+        const parent = layer.parentElement;
+        if (!parent) return;
+        const depth = Number(layer.dataset.parallax ?? "0.2");
+        const rect = parent.getBoundingClientRect();
+        const offset = (rect.top + rect.height / 2 - window.innerHeight / 2) * depth * -0.12;
+        layer.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+      });
+    };
+    const onScroll = () => { if (!queued) { queued = true; window.requestAnimationFrame(update); } };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    update();
+  }
+</script>
