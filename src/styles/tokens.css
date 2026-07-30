@@ -17,6 +17,7 @@
   --font-heading: "Shippori Mincho", serif;
   --font-mono: "JetBrains Mono", monospace;
   --content-width: 84rem;
+  --header-height: 4.5rem;
   --space-section: clamp(5rem, 10vw, 9rem);
   --radius-small: 0;
   --radius-medium: 0;
