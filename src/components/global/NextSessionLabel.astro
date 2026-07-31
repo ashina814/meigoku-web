@@ -1,14 +1,13 @@
 ---
 import { joinConfig, recruitmentMessages } from "../../data/join";
+import { formatSessionTimes } from "../../lib/join";
 
 interface Props {
   class?: string;
 }
 
 const { class: className } = Astro.props;
-const schedule = joinConfig.sessionTimes.length
-  ? `説明会 ${joinConfig.sessionTimes.join(" / ")} JST`
-  : "説明会の案内は入城案内でご確認ください";
+const schedule = formatSessionTimes() ?? "説明会の日程は入城案内でご確認ください";
 const initialText = joinConfig.recruitmentState === "open"
   ? schedule
   : recruitmentMessages[joinConfig.recruitmentState];

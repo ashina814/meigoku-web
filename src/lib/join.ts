@@ -1,6 +1,26 @@
 import { joinConfig, type JoinConfig } from "../data/join";
 
-const weekdayNames = ["日", "月", "火", "水", "木", "金", "土"];
+const weekdayNames = ["日", "月", "火", "水", "木", "金", "土"] as const;
+
+export const formatSessionTimes = (config: JoinConfig = joinConfig) =>
+  config.sessionTimes.length ? `説明会 ${config.sessionTimes.join(" / ")} JST` : null;
+
+export const formatClosedWeekdays = (
+  config: JoinConfig = joinConfig,
+  format: "short" | "long" = "short"
+) => {
+  const weekdays = [...new Set(config.closedWeekdays)]
+    .filter((weekday) => Number.isInteger(weekday) && weekday >= 0 && weekday <= 6)
+    .sort((a, b) => a - b)
+    .map((weekday) => `${weekdayNames[weekday]}${format === "long" ? "曜日" : ""}`);
+
+  return weekdays.length ? weekdays.join("・") : null;
+};
+
+export const formatReviewedDate = (value: string) => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  return match ? `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日` : value;
+};
 
 const tokyoParts = (date: Date, config: JoinConfig) => {
   const parts = new Intl.DateTimeFormat("en-CA", {
