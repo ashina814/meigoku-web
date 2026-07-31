@@ -5,8 +5,19 @@ import { calculateSoulReading, rankSoulTypes, shouldShowMix } from "../src/lib/s
 const equal = (actual: unknown, expected: unknown, message: string) => { if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(`${message}\nExpected: ${JSON.stringify(expected)}\nActual: ${JSON.stringify(actual)}`); };
 const ok = (condition: boolean, message: string) => { if (!condition) throw new Error(message); };
 equal(axisMaximums, { start: 18, pick: 17, read: 17, deep: 18, self: 16, roam: 16 }, "Axis maxima must come from the question definitions.");
+const canonicalProfiles = {
+  tenka: { start: 1, pick: .5, read: .25, deep: .25, self: .75, roam: .75 },
+  kyomei: { start: .25, pick: 1, read: .5, deep: .75, self: .25, roam: .5 },
+  shinen: { start: .25, pick: .75, read: .5, deep: 1, self: .5, roam: .25 },
+  enka: { start: .5, pick: .75, read: .5, deep: .25, self: 1, roam: .75 },
+  chouritsu: { start: .5, pick: .75, read: 1, deep: .5, self: .25, roam: .5 },
+  yoimi: { start: .25, pick: .5, read: 1, deep: .75, self: .25, roam: .25 },
+  junyu: { start: .5, pick: .5, read: .5, deep: .25, self: .5, roam: 1 },
+  kokumei: { start: .5, pick: .25, read: .25, deep: .75, self: 1, roam: .5 }
+};
 
 for (const type of soulResultTypes) {
+  equal(type.profile, canonicalProfiles[type.id], `${type.id} profile must match the canonical values.`);
   const answers = soulQuestions.map((question) => {
     const primary = question.options.findIndex((option) => option.primary === type.id);
     return primary >= 0 ? primary : question.options.findIndex((option) => option.secondary === type.id);
