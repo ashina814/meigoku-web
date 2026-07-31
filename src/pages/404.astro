@@ -1,11 +1,5 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import "../styles/site-pages.css";
 ---
-
-<BaseLayout title="ページが見つかりません" robots="noindex, nofollow">
-  <section class="container" aria-labelledby="not-found-title">
-    <h1 id="not-found-title">ページが見つかりません</h1>
-    <p>指定されたページは見つかりませんでした。</p>
-    <p><a href="/">トップへ戻る</a></p>
-  </section>
-</BaseLayout>
+<BaseLayout title="ページが見つかりません" robots="noindex, nofollow"><section class="site-page site-page__hero" aria-labelledby="not-found-title"><div class="container"><p class="site-page__eyebrow">404 / LOST OUTSIDE THE GATE</p><h1 id="not-found-title">この扉は、まだ開いていません。</h1><p class="site-page__hero-copy">指定されたページは見つかりませんでした。城門へ戻り、別の入口からお進みください。</p><div class="site-page__hero-actions"><a class="site-page__cta" href="/">トップへ戻る</a><a class="site-page__cta site-page__cta--quiet" href="/join">入城案内を見る</a></div></div></section></BaseLayout>

@@ -1,0 +1,13 @@
+---
+import { joinConfig, recruitmentMessages } from "../../data/join";
+---
+
+<aside class="status-strip" aria-label="入城受付の状況">
+  <div class="container status-strip__inner">
+    <p><span class="status-strip__dot" aria-hidden="true"></span>{recruitmentMessages[joinConfig.recruitmentState]}</p>
+    <p>説明会 {joinConfig.sessionTimes.join(" / ")} JST</p>
+    <p>月・木休止</p>
+    <p>時間外面接：{joinConfig.outOfHoursInterview}</p>
+    <a href="/join">入城案内を見る <span aria-hidden="true">→</span></a>
+  </div>
+</aside>

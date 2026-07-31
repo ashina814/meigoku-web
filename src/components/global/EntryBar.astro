@@ -1,0 +1,28 @@
+---
+import { canShowInvite, joinConfig } from "../../data/join";
+import { nextSessionLabel } from "../../lib/join";
+
+const nextSession = nextSessionLabel();
+---
+
+<aside class="entry-bar" data-entry-bar aria-label="入城案内">
+  <div class="container entry-bar__inner">
+    <div>
+      <p class="entry-bar__label">NEXT ORIENTATION</p>
+      <p class="entry-bar__time">{nextSession ?? "説明会の日程は入城案内でご確認ください"}</p>
+    </div>
+    <div class="entry-bar__actions">
+      <a class="entry-bar__link" href="/join">入城案内を見る</a>
+      {canShowInvite() && <a class="entry-bar__cta" href={joinConfig.inviteUrl} target="_blank" rel="noopener noreferrer">Discordで城門を叩く <span aria-hidden="true">↗</span><span class="sr-only">（外部リンク）</span></a>}
+      <button type="button" class="entry-bar__dismiss" aria-label="入城案内バーを閉じる">×</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  const bar = document.querySelector<HTMLElement>("[data-entry-bar]");
+  const dismiss = bar?.querySelector<HTMLButtonElement>(".entry-bar__dismiss");
+  dismiss?.addEventListener("click", () => {
+    bar?.setAttribute("hidden", "");
+  });
+</script>
