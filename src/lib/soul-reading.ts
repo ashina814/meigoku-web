@@ -1,39 +1,35 @@
-import { soulTypes, type SoulId } from "../data/brand";
-import { activities, axes, easeLabels, soulQuestions, type Axis } from "../data/soul-reading";
+import type { SoulId } from "../data/brand";
+import { activities, axes, axisMaximums, easeLabels, easeTieOrder, soulQuestions, type Axis } from "../data/soul-reading";
+import { soulResultTypes, type SoulResultText } from "../data/soul-results";
 
-export type SoulReadingResult = {
-  soul: (typeof soulTypes)[number];
-  rawNorm: Record<Axis, number>;
-  displayNorm: Record<Axis, number>;
-  easiest: string[];
-  activityCards: (typeof activities)[number][];
-  oneMonthWishes: (typeof activities)[number][];
+export type SoulReadingResult = { soul: SoulResultText; second: SoulResultText; typeScores: Record<SoulId, number>; primaryCounts: Record<SoulId, number>; rawNorm: Record<Axis, number>; displayNorm: Record<Axis, number>; easiest: string[]; activityCards: (typeof activities)[number][]; oneMonthWishes: (typeof activities)[number][]; showMix: boolean };
+const tieBreak: Record<SoulId, string[]> = { tenka:["events","planning","social","streaming","economy","creation"], kyomei:["social","creation","events","planning","streaming","economy"], shinen:["creation","social","streaming","events","planning","economy"], enka:["events","social","streaming","creation","planning","economy"], chouritsu:["planning","social","events","creation","economy","streaming"], yoimi:["creation","streaming","social","events","planning","economy"], junyu:["social","economy","events","planning","streaming","creation"], kokumei:["creation","streaming","economy","social","planning","events"] };
+export const shouldShowMix = (winnerScore: number, secondScore: number) => winnerScore - secondScore >= 0 && winnerScore - secondScore <= 2;
+export const rankSoulTypes = (typeScores: Record<SoulId, number>, primaryCounts: Record<SoulId, number>, rawNorm: Record<Axis, number>) => {
+  const distance = (type: SoulResultText) => axes.reduce((sum, axis) => sum + Math.pow(type.profile[axis] - rawNorm[axis], 2), 0);
+  // Returning zero retains the fixed order of soulResultTypes as the final tiebreak.
+  return [...soulResultTypes].sort((a, b) => typeScores[b.id] - typeScores[a.id] || primaryCounts[b.id] - primaryCounts[a.id] || distance(a) - distance(b));
 };
-
-const profiles: Record<SoulId, Record<Axis, number>> = {
-  tenka: { start: 1, pick: .5, read: .25, deep: .25, self: .75, roam: .75 }, kyomei: { start: .25, pick: 1, read: .5, deep: .75, self: .25, roam: .5 }, shinen: { start: .25, pick: .75, read: .5, deep: 1, self: .5, roam: .25 }, enka: { start: .5, pick: .75, read: .5, deep: .25, self: 1, roam: .75 }, chouritsu: { start: .5, pick: .75, read: 1, deep: .5, self: .25, roam: .5 }, yoimi: { start: .25, pick: .5, read: 1, deep: .75, self: .25, roam: .25 }, junyu: { start: .5, pick: .5, read: .5, deep: .25, self: .5, roam: 1 }, kokumei: { start: .5, pick: .25, read: .25, deep: .75, self: 1, roam: .5 }
-};
-const tieBreak: Record<SoulId, string[]> = { tenka: ["events", "planning", "social", "streaming", "economy", "creation"], kyomei: ["social", "creation", "events", "planning", "streaming", "economy"], shinen: ["creation", "social", "streaming", "events", "planning", "economy"], enka: ["events", "social", "streaming", "creation", "planning", "economy"], chouritsu: ["planning", "social", "events", "creation", "economy", "streaming"], yoimi: ["creation", "streaming", "social", "events", "planning", "economy"], junyu: ["social", "economy", "events", "planning", "streaming", "creation"], kokumei: ["creation", "streaming", "economy", "social", "planning", "events"] };
 
 export const calculateSoulReading = (answers: number[], chosenActivities: string[], oneMonth: string[]): SoulReadingResult => {
   const axesScore = Object.fromEntries(axes.map((axis) => [axis, 0])) as Record<Axis, number>;
-  const types = Object.fromEntries(soulTypes.map((type) => [type.id, 0])) as Record<SoulId, number>;
-  const ease = new Map<string, number>();
+  const typeScores = Object.fromEntries(soulResultTypes.map((type) => [type.id, 0])) as Record<SoulId, number>;
+  const primaryCounts = Object.fromEntries(soulResultTypes.map((type) => [type.id, 0])) as Record<SoulId, number>;
+  const inferredEase = new Map<string, number>(); let explicitEase: string | undefined;
   answers.forEach((answer, index) => {
-    const option = soulQuestions[index]?.options[answer];
-    if (!option) return;
-    types[option.primary] += 2; types[option.secondary] += 1; axesScore[option.axis2] += 2; axesScore[option.axis1] += 1;
-    [...(option.ease ?? []), ...(option.entryEase ? [option.entryEase] : [])].forEach((id) => ease.set(id, (ease.get(id) ?? 0) + 1));
+    const option = soulQuestions[index]?.options[answer]; if (!option) return;
+    typeScores[option.primary] += 2; typeScores[option.secondary] += 1; primaryCounts[option.primary] += 1; axesScore[option.axis2] += 2; axesScore[option.axis1] += 1;
+    if (index === 11) explicitEase = option.entryEase;
+    else (option.ease ?? []).forEach((id) => inferredEase.set(id, (inferredEase.get(id) ?? 0) + 1));
   });
-  const rawNorm = Object.fromEntries(axes.map((axis) => [axis, Math.min(1, axesScore[axis] / 24)])) as Record<Axis, number>;
-  // Display only: keep the shape legible without using this 24% floor for classification.
+  const rawNorm = Object.fromEntries(axes.map((axis) => [axis, Math.max(0, Math.min(1, axesScore[axis] / axisMaximums[axis]))])) as Record<Axis, number>;
   const displayNorm = Object.fromEntries(axes.map((axis) => [axis, .24 + rawNorm[axis] * .76])) as Record<Axis, number>;
-  const ranked = [...soulTypes].sort((a, b) => {
-    const score = (id: SoulId) => types[id] - axes.reduce((sum, axis) => sum + Math.pow(profiles[id][axis] - rawNorm[axis], 2), 0);
-    return score(b.id) - score(a.id);
-  });
-  const soul = ranked[0];
-  const rankActivity = (id: string) => [oneMonth.includes(id) ? 0 : 1, tieBreak[soul.id].indexOf(id)];
-  const activityCards = activities.filter((activity) => chosenActivities.includes(activity.id)).sort((a, b) => rankActivity(a.id).toString().localeCompare(rankActivity(b.id).toString()));
-  return { soul, rawNorm, displayNorm, easiest: [...ease.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([id]) => easeLabels[id]), activityCards, oneMonthWishes: activities.filter((activity) => oneMonth.includes(activity.id)) };
+  // Lexicographic classification: score, primary choices, profile distance among tied candidates, then fixed data order.
+  const ranked = rankSoulTypes(typeScores, primaryCounts, rawNorm);
+  const soul = ranked[0]; const second = ranked[1];
+  const inferred = [...inferredEase.entries()].filter(([, count]) => count >= 2).sort((a, b) => b[1] - a[1] || easeTieOrder.indexOf(a[0] as typeof easeTieOrder[number]) - easeTieOrder.indexOf(b[0] as typeof easeTieOrder[number]))[0]?.[0];
+  const easiest = [explicitEase, inferred].filter((id, index, ids): id is string => Boolean(id) && ids.indexOf(id) === index).map((id) => easeLabels[id]);
+  const rankActivity = (id: string) => [oneMonth.includes(id) ? 0 : 1, tieBreak[soul.id].indexOf(id)] as const;
+  const activityCards = activities.filter((activity) => chosenActivities.includes(activity.id)).sort((a, b) => rankActivity(a.id)[0] - rankActivity(b.id)[0] || rankActivity(a.id)[1] - rankActivity(b.id)[1]);
+  return { soul, second, typeScores, primaryCounts, rawNorm, displayNorm, easiest, activityCards, oneMonthWishes: activities.filter((activity) => oneMonth.includes(activity.id)), showMix: shouldShowMix(typeScores[soul.id], typeScores[second.id]) };
 };

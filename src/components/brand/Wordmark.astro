@@ -5,7 +5,7 @@ const { orientation = "horizontal", compact = false } = Astro.props;
 ---
 
 <div class:list={["wordmark", `wordmark--${orientation}`, { "wordmark--compact": compact }]} aria-label="冥獄城">
-  <span class="wordmark__crest"><CrestMark variant="castle" /></span>
+  <span class="wordmark__crest"><CrestMark kind="castle" variant={compact ? "compact" : "full"} /></span>
   <span class="wordmark__name">冥獄城</span>
   {!compact && <span class="wordmark__latin">MEIGOKU CASTLE</span>}
 </div>

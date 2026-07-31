@@ -22,6 +22,10 @@ export const soulQuestions: SoulQuestion[] = [
   { scene: "場面 12 — 入りやすさ", chapter: "第二章　少し慣れてから", text: "初めてのVCでも、これがあると一番入りやすい。", options: [option("知っている人が一人いる。", "kyomei", "shinen", "pick", "deep", undefined, "familiar"), option("二〜三人くらいの少人数。", "shinen", "yoimi", "deep", "read", undefined, "small_group"), option("好きな話題やゲームが決まっている。", "kokumei", "enka", "self", "start", undefined, "defined_topic"), option("入る前に少し様子を見られる。", "yoimi", "junyu", "read", "roam", undefined, "preview")] }
 ];
 
+/** The theoretical maximum for each axis is derived from the answer definitions. */
+export const axisMaximums = Object.fromEntries(axes.map((axis) => [axis, soulQuestions.reduce((total, question) => total + Math.max(...question.options.map((option) => (option.axis2 === axis ? 2 : 0) + (option.axis1 === axis ? 1 : 0))), 0)])) as Record<Axis, number>;
+export const easeTieOrder = ["familiar", "small_group", "defined_topic", "preview", "choice", "self_start"] as const;
+
 export const activities = [
   { id: "social", question13: "みんなで雑談する場所", question14: "顔を見ると話せる人が何人かいる", name: "雑談・交流" }, { id: "events", question13: "ゲームやイベント", question14: "参加を楽しみにする遊びやイベントがある", name: "ゲーム・イベント" }, { id: "creation", question13: "日記、写真、作品を置ける場所", question14: "自分の投稿や作品から話しかけられる", name: "日記・写真・作品" }, { id: "economy", question13: "Land、商館、個人店", question14: "店やLandを使って城内でやり取りしている", name: "Land・商館・個人店" }, { id: "planning", question13: "企画や制作の手伝い", question14: "手伝いたい企画や制作分野が見つかっている", name: "企画・制作" }, { id: "streaming", question13: "配信や発信を見る・やること", question14: "配信や発信で自分の色を出せている", name: "配信・発信" }
 ] as const;

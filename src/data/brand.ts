@@ -55,5 +55,7 @@ export const soulTypes = [
 export const castleCrest: CrestPath[] = [
   { d: ring(50, 50, 46.5), weight: "detail" }, { d: diamond(50, 50, 44), weight: "frame" }, { d: diamond(50, 50, 38), weight: "detail" }, { d: "M50 14 L57 36 H43 Z" }, { d: "M34 23 L40 41 H28 Z" }, { d: "M66 23 L72 41 H60 Z" }, { d: "M26 53 H74" }, { d: "M28 53 V46 H34 V53 M43 53 V44 H47 V53 M53 53 V44 H57 V53 M66 53 V46 H72 V53" }, { d: "M42 78 V64 A11 11 0 0 1 50 53 M58 78 V64 A11 11 0 0 0 50 53" }, { d: "M24 78 H76" }, { d: diamond(50, 68, 3.2), fill: true }
 ];
+export const castleCrestCompact: CrestPath[] = [{ d: diamond(50, 50, 44), weight: "frame" }, { d: "M50 18 L58 42 H42 Z" }, { d: "M40 78 V62 A12 12 0 0 1 50 46 M60 78 V62 A12 12 0 0 0 50 46" }, { d: "M26 78 H74" }, { d: diamond(50, 68, 4), fill: true }];
 
 export const crestPaths = (id: SoulId, simplified = false): CrestPath[] => [...(simplified ? miniFrame : frame), ...(simplified ? soulTypes.find((type) => type.id === id)!.mini : soulTypes.find((type) => type.id === id)!.full)];
+export const castleCrestPaths = (simplified = false): CrestPath[] => simplified ? castleCrestCompact : castleCrest;
