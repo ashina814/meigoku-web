@@ -10,9 +10,10 @@ interface Props {
   fullTitle?: string;
   description?: string;
   robots?: string;
+  hideFooter?: boolean;
 }
 
-const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots } = Astro.props;
+const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots, hideFooter = false } = Astro.props;
 const pageTitle = fullTitle ?? createPageTitle(title);
 const canonicalUrl = createCanonicalUrl(Astro.url.pathname);
 const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUrl).href : undefined;
@@ -45,6 +46,6 @@ const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUr
     <a class="skip-link" href="#main-content">本文へ移動</a>
     <SiteHeader currentPath={Astro.url.pathname} />
     <main id="main-content"><slot /></main>
-    <SiteFooter />
+    {!hideFooter && <SiteFooter />}
   </body>
 </html>

@@ -278,29 +278,41 @@
     context.beginPath(); axes.forEach((axis, index) => { const p = point(index, values[axis]); index ? context.lineTo(...p) : context.moveTo(...p); }); context.closePath(); context.fillStyle = "rgba(184,31,34,.34)"; context.fill(); context.strokeStyle = "#e0b26a"; context.lineWidth = 2.5; context.stroke();
   };
   const drawCanvas = async () => {
-    const canvas = app.querySelector<HTMLCanvasElement>("canvas"); if (!canvas) return;
-    const context = canvas.getContext("2d"); if (!context) return;
-    const result = calculateSoulReading(state.answers, state.interests, state.wishes);
-    const [background, mark] = await Promise.all([loadImage("/images/diagnosis/share-bg-1080x1350.png"), loadImage(`/images/brand/crest/crest-${result.soul.id}.svg`)]);
-    await document.fonts.ready;
-    context.fillStyle = "#07060a"; context.fillRect(0, 0, 1080, 1350);
-    if (background.complete && background.naturalWidth) context.drawImage(background, 0, 0, 1080, 1350);
-    const shade = context.createLinearGradient(0, 0, 0, 1350); shade.addColorStop(0, "rgba(16,12,17,.12)"); shade.addColorStop(1, "rgba(7,6,10,.55)"); context.fillStyle = shade; context.fillRect(0, 0, 1080, 1350);
-    context.strokeStyle = "rgba(224,178,106,.34)"; context.strokeRect(44, 44, 992, 1262); context.textAlign = "center";
-    context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("MEIGOKU CASTLE / SOUL READING", 540, 110);
-    context.fillStyle = "#fff9ed"; context.font = "600 72px 'Shippori Mincho', serif"; context.fillText(result.soul.name, 540, 240);
-    if (mark.complete && mark.naturalWidth) context.drawImage(mark, 390, 290, 300, 300);
-    context.fillStyle = "#f3d79b"; context.font = "38px 'Shippori Mincho', serif"; wrapCanvasText(context, result.soul.line, 820).forEach((line, index) => context.fillText(line, 540, 650 + index * 54));
-    drawCanvasShape(context, result.displayNorm, 540, 855, 130);
-    context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("城でまず気になっているもの", 540, 1090);
-    context.fillStyle = "#ece7dd"; context.font = "28px 'Noto Sans JP', sans-serif"; context.fillText(result.activityCards.map((item) => item.name).join("　／　"), 540, 1145);
-    context.fillStyle = "#948d99"; context.font = "19px 'JetBrains Mono', monospace"; context.fillText(siteConfig.siteUrl?.toString() ?? "冥獄城　魂の診断", 540, 1238);
-    context.font = "18px 'Noto Sans JP', sans-serif"; context.fillText("通話での居方の傾向です。入城の可否・身分・評価とは関係ありません。", 540, 1286);
+    const share = app.querySelector<HTMLElement>(".soul-reading__share");
+    const canvas = app.querySelector<HTMLCanvasElement>("canvas");
+    const loading = app.querySelector<HTMLElement>(".soul-reading__share-loading");
+    const save = app.querySelector<HTMLButtonElement>("[data-share-save]");
+    if (!canvas) return;
+    try {
+      const context = canvas.getContext("2d"); if (!context) return;
+      await new Promise<void>((resolve) => setTimeout(resolve, 180));
+      const result = calculateSoulReading(state.answers, state.interests, state.wishes);
+      const [background, mark] = await Promise.all([loadImage("/images/diagnosis/share-bg-1080x1350.png"), loadImage(`/images/brand/crest/crest-${result.soul.id}.svg`)]);
+      await document.fonts.ready;
+      context.fillStyle = "#07060a"; context.fillRect(0, 0, 1080, 1350);
+      if (background.complete && background.naturalWidth) context.drawImage(background, 0, 0, 1080, 1350);
+      const shade = context.createLinearGradient(0, 0, 0, 1350); shade.addColorStop(0, "rgba(16,12,17,.12)"); shade.addColorStop(1, "rgba(7,6,10,.55)"); context.fillStyle = shade; context.fillRect(0, 0, 1080, 1350);
+      context.strokeStyle = "rgba(224,178,106,.34)"; context.strokeRect(44, 44, 992, 1262); context.textAlign = "center";
+      context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("MEIGOKU CASTLE / SOUL READING", 540, 110);
+      context.fillStyle = "#fff9ed"; context.font = "600 72px 'Shippori Mincho', serif"; context.fillText(result.soul.name, 540, 240);
+      if (mark.complete && mark.naturalWidth) context.drawImage(mark, 390, 290, 300, 300);
+      context.fillStyle = "#f3d79b"; context.font = "38px 'Shippori Mincho', serif"; wrapCanvasText(context, result.soul.line, 820).forEach((line, index) => context.fillText(line, 540, 650 + index * 54));
+      drawCanvasShape(context, result.displayNorm, 540, 855, 130);
+      context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("城でまず気になっているもの", 540, 1090);
+      context.fillStyle = "#ece7dd"; context.font = "28px 'Noto Sans JP', sans-serif"; context.fillText(result.activityCards.map((item) => item.name).join("　／　"), 540, 1145);
+      context.fillStyle = "#948d99"; context.font = "19px 'JetBrains Mono', monospace"; context.fillText(siteConfig.siteUrl?.toString() ?? "冥獄城　魂の診断", 540, 1238);
+      context.font = "18px 'Noto Sans JP', sans-serif"; context.fillText("通話での居方の傾向です。入城の可否・身分・評価とは関係ありません。", 540, 1286);
+    } finally {
+      canvas.hidden = false;
+      loading?.setAttribute("hidden", "");
+      share?.setAttribute("aria-busy", "false");
+      if (save) save.disabled = false;
+    }
   };
   const renderShare = () => {
-    const panel = element("section", "soul-reading__screen soul-reading__share"); const content = element("div", "soul-reading__share-content");
-    content.append(sectionLabel("SHARE IMAGE / 1080 × 1350")); const canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1350; canvas.setAttribute("aria-label", "診断結果の共有画像"); content.append(canvas);
-    const actions = element("div", "soul-reading__share-actions"); actions.append(button("画像を保存する", "soul-reading__button soul-reading__button--outline", () => canvas.toBlob((blob) => { if (!blob) return; const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "meigoku-soul.png"; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 500); })), button("結果へ戻る", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "result"; render(); }), element("p", "soul-reading__share-note", "ブラウザ内のCanvasで生成します。サーバー送信・外部API・課金は不要です。")); content.append(actions); panel.append(content); app.append(panel); requestAnimationFrame(drawCanvas);
+    const panel = element("section", "soul-reading__screen soul-reading__share"); panel.setAttribute("aria-busy", "true"); const content = element("div", "soul-reading__share-content");
+    content.append(sectionLabel("SHARE IMAGE / 1080 × 1350")); const loading = element("p", "soul-reading__share-loading", "魂の形を描いています……"); loading.setAttribute("role", "status"); const canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1350; canvas.hidden = true; canvas.setAttribute("aria-label", "診断結果の共有画像"); content.append(loading, canvas);
+    const actions = element("div", "soul-reading__share-actions"); const save = button("画像を保存する", "soul-reading__button soul-reading__button--outline", () => canvas.toBlob((blob) => { if (!blob) return; const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "meigoku-soul.png"; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 500); })); save.disabled = true; save.dataset.shareSave = ""; actions.append(save, button("結果へ戻る", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "result"; render(); }), element("p", "soul-reading__share-note", "ブラウザ内のCanvasで生成します。サーバー送信・外部API・課金は不要です。")); content.append(actions); panel.append(content); app.append(panel); requestAnimationFrame(drawCanvas);
   };
   render();
 </script>
