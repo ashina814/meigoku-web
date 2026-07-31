@@ -1,0 +1,11 @@
+---
+interface Props { orientation?: "horizontal" | "vertical"; compact?: boolean; }
+const { orientation = "horizontal", compact = false } = Astro.props;
+const source = `/images/brand/crest/wordmark-${orientation === "vertical" ? "v" : "h"}.svg`;
+---
+
+<img class:list={["wordmark", `wordmark--${orientation}`, { "wordmark--compact": compact }]} src={source} alt="冥獄城" width={orientation === "vertical" ? 240 : 480} height={orientation === "vertical" ? 300 : 120} />
+
+<style>
+  .wordmark { display:block; width:11.5rem; max-width:100%; height:auto; }.wordmark--vertical { width:7.5rem; }.wordmark--compact { width:9.5rem; }
+</style>

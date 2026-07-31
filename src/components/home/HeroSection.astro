@@ -1,13 +1,17 @@
 ---
 import { homeAssets, homeHero } from "../../data/home";
+import CrestMark from "../brand/CrestMark.astro";
 ---
 
 <section id="hero" class="hero" aria-labelledby="hero-title">
-  <div class="hero__image" aria-hidden="true" data-parallax="0.16" style={`--castle-image: url(${homeAssets.castlePlaceholder})`}></div>
+  <div class="hero__image" aria-hidden="true" data-parallax="0.16" style={`--castle-image: url(${homeAssets.castleHero})`}></div>
   <div class="hero__shade" aria-hidden="true"></div>
+  <div class="hero__mist hero__mist--near" aria-hidden="true" data-parallax="0.06"></div>
+  <div class="hero__mist hero__mist--far" aria-hidden="true" data-parallax="0.1"></div>
   <div class="hero__content">
     <p class="eyebrow">MEIGOKU CASTLE / OFFICIAL SITE</p>
     <div class="hero__copy">
+      <span class="hero__crest" aria-hidden="true"><CrestMark kind="castle" variant="full" /></span>
       <h1 id="hero-title">
         <span>名もなき魂よ、</span>
         <span>城門を叩け。</span>
@@ -17,9 +21,10 @@ import { homeAssets, homeHero } from "../../data/home";
     <div class="hero__bottom">
       <p class="hero__description">{homeHero.description}</p>
       <div class="cta-group">
-        <a class="cta cta--primary" href="/join">城門を叩く <span aria-hidden="true">→</span></a>
+        <a class="cta cta--primary" href="/soul-reading">魂の診断を受ける <span aria-hidden="true">→</span></a>
         <a class="cta cta--secondary" href="/world">冥獄城を知る</a>
       </div>
+      <a class="hero__join-link" href="/join">診断のあとに、入城案内を見る <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>

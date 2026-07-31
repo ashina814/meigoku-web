@@ -1,6 +1,6 @@
 export const homeAssets = {
-  /** User-provided server icon. Replace with dedicated PC/SP hero art before production. */
-  castlePlaceholder: "/images/brand/castle-placeholder.png"
+  /** Approved server-icon-derived exterior art for the official Hero. */
+  castleHero: "/images/brand/meigoku-castle-hero.png"
 } as const;
 
 export const homeHero = {

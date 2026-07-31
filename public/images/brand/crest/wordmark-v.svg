@@ -1,11 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="冥獄城 魂の診断">
-  <rect width="1200" height="630" fill="#07060a"></rect>
-  <radialGradient id="g" cx="50%" cy="42%" r="62%">
-    <stop offset="0" stop-color="#b81f22" stop-opacity=".34"></stop><stop offset="1" stop-color="#b81f22" stop-opacity="0"></stop>
-  </radialGradient>
-  <rect width="1200" height="630" fill="url(#g)"></rect>
-  <rect x="40" y="40" width="1120" height="550" fill="none" stroke="#e0b26a" stroke-opacity=".28"></rect>
-  <g transform="translate(520 118) scale(1.6)" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 300" width="240" height="300" role="img" aria-label="冥獄城" fill="none">
+  <g transform="translate(70 14)">
     <path d="M3.5 50 A46.5 46.5 0 1 1 96.5 50 A46.5 46.5 0 1 1 3.5 50 Z" fill="none" stroke="rgba(236,231,221,.22)" stroke-width="0.8"></path>
     <path d="M50 6 L94 50 L50 94 L6 50 Z" fill="none" stroke="#e0b26a" stroke-width="1.5"></path>
     <path d="M50 12 L88 50 L50 88 L12 50 Z" fill="none" stroke="rgba(236,231,221,.22)" stroke-width="0.8"></path>
@@ -27,7 +21,7 @@
     <path d="M94 47 L97 50 L94 53 L91 50 Z" fill="#e0b26a"></path>
 
   </g>
-  <text x="600" y="440" fill="#ece7dd" font-family="Shippori Mincho, serif" font-size="72" font-weight="600" letter-spacing="22" text-anchor="middle">冥獄城</text>
-  <text x="600" y="502" fill="#f3d79b" font-family="Shippori Mincho, serif" font-size="30" letter-spacing="14" text-anchor="middle">魂の診断</text>
-  <text x="600" y="552" fill="#948d99" font-family="JetBrains Mono, monospace" font-size="17" letter-spacing="6" text-anchor="middle">SOUL READING</text>
+  <text x="120" y="184" fill="#ece7dd" font-family="Shippori Mincho, serif" font-size="38" font-weight="600" letter-spacing="11" text-anchor="middle">冥獄城</text>
+  <line x1="88" y1="212" x2="152" y2="212" stroke="rgba(236,231,221,.24)" stroke-width="1"></line>
+  <text x="120" y="240" fill="#948d99" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="5" text-anchor="middle">MEIGOKU CASTLE</text>
 </svg>

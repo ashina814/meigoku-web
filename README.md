@@ -63,4 +63,4 @@ publishState === "approved" && visibility === "public"
 
 ## トップページv3の仮素材
 
-`public/images/brand/castle-placeholder.png` は、構図・配色確認用に配置したサーバーアイコン由来の仮素材です。本番公開前に、PC用（2400×1400）とスマートフォン用（1200×1600）の高解像度Hero画像へ差し替えてください。画像パスは `src/data/home.ts` の `homeAssets` で一元管理しています。
+`public/images/brand/meigoku-castle-hero.png` は、正式採用したサーバーアイコン由来の冥獄城外観です。Hero画像のパスは `src/data/home.ts` の `homeAssets` で一元管理しています。

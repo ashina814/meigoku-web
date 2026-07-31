@@ -1,5 +1,6 @@
 ---
 import MainNavigation from "./MainNavigation.astro";
+import Wordmark from "../brand/Wordmark.astro";
 
 interface Props {
   currentPath: string;
@@ -10,7 +11,7 @@ const { currentPath } = Astro.props;
 
 <header class="site-header">
   <div class="container">
-    <a href="/" aria-label="冥獄城トップへ">冥獄城</a>
+    <a href="/" aria-label="冥獄城トップへ"><Wordmark compact /></a>
     <MainNavigation currentPath={currentPath} />
   </div>
 </header>

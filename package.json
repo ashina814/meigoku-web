@@ -11,11 +11,13 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test:soul-reading": "tsx scripts/verify-soul-reading.ts"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
     "astro": "^7.1.3",
+    "tsx": "^4.23.1",
     "typescript": "^5.9.3"
   }
 }
