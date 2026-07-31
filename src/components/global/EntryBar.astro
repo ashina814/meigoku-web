@@ -1,15 +1,13 @@
 ---
 import { canShowInvite, joinConfig } from "../../data/join";
-import { nextSessionLabel } from "../../lib/join";
-
-const nextSession = nextSessionLabel();
+import NextSessionLabel from "./NextSessionLabel.astro";
 ---
 
 <aside class="entry-bar" data-entry-bar aria-label="入城案内">
   <div class="container entry-bar__inner">
     <div>
       <p class="entry-bar__label">NEXT ORIENTATION</p>
-      <p class="entry-bar__time">{nextSession ?? "説明会の日程は入城案内でご確認ください"}</p>
+      <p class="entry-bar__time"><NextSessionLabel /></p>
     </div>
     <div class="entry-bar__actions">
       <a class="entry-bar__link" href="/join">入城案内を見る</a>
@@ -18,11 +16,34 @@ const nextSession = nextSessionLabel();
     </div>
   </div>
 </aside>
+<button type="button" class="entry-bar__restore" data-entry-bar-restore hidden>入城案内を開く</button>
 
 <script>
   const bar = document.querySelector<HTMLElement>("[data-entry-bar]");
   const dismiss = bar?.querySelector<HTMLButtonElement>(".entry-bar__dismiss");
+  const restore = document.querySelector<HTMLButtonElement>("[data-entry-bar-restore]");
+
+  const updateEntryBarHeight = () => {
+    const height = bar?.offsetHeight ?? 0;
+    document.documentElement.style.setProperty("--entry-bar-height", `${Math.max(height, 44)}px`);
+  };
+
+  if (bar) {
+    updateEntryBarHeight();
+    new ResizeObserver(updateEntryBarHeight).observe(bar);
+  }
+
   dismiss?.addEventListener("click", () => {
     bar?.setAttribute("hidden", "");
+    restore?.removeAttribute("hidden");
+    updateEntryBarHeight();
+    restore?.focus();
+  });
+
+  restore?.addEventListener("click", () => {
+    bar?.removeAttribute("hidden");
+    restore.setAttribute("hidden", "");
+    updateEntryBarHeight();
+    bar?.querySelector<HTMLAnchorElement>(".entry-bar__link")?.focus();
   });
 </script>

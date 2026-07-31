@@ -46,7 +46,7 @@ const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUr
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{pageTitle}</title>
   </head>
-  <body>
+  <body class:list={[!hideEntryBar && "has-entry-bar"]}>
     <a class="skip-link" href="#main-content">本文へ移動</a>
     <SiteHeader currentPath={Astro.url.pathname} />
     {!hideStatusStrip && <StatusStrip />}
