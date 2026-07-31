@@ -283,30 +283,44 @@
     const loading = app.querySelector<HTMLElement>(".soul-reading__share-loading");
     const save = app.querySelector<HTMLButtonElement>("[data-share-save]");
     if (!canvas) return;
+    let rendered = false;
     try {
-      const context = canvas.getContext("2d"); if (!context) return;
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Canvas context was not available.");
       await new Promise<void>((resolve) => setTimeout(resolve, 180));
       const result = calculateSoulReading(state.answers, state.interests, state.wishes);
       const [background, mark] = await Promise.all([loadImage("/images/diagnosis/share-bg-1080x1350.png"), loadImage(`/images/brand/crest/crest-${result.soul.id}.svg`)]);
+      if (!background.naturalWidth || !mark.naturalWidth) throw new Error("Share image assets could not be loaded.");
       await document.fonts.ready;
       context.fillStyle = "#07060a"; context.fillRect(0, 0, 1080, 1350);
-      if (background.complete && background.naturalWidth) context.drawImage(background, 0, 0, 1080, 1350);
+      context.drawImage(background, 0, 0, 1080, 1350);
       const shade = context.createLinearGradient(0, 0, 0, 1350); shade.addColorStop(0, "rgba(16,12,17,.12)"); shade.addColorStop(1, "rgba(7,6,10,.55)"); context.fillStyle = shade; context.fillRect(0, 0, 1080, 1350);
       context.strokeStyle = "rgba(224,178,106,.34)"; context.strokeRect(44, 44, 992, 1262); context.textAlign = "center";
       context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("MEIGOKU CASTLE / SOUL READING", 540, 110);
       context.fillStyle = "#fff9ed"; context.font = "600 72px 'Shippori Mincho', serif"; context.fillText(result.soul.name, 540, 240);
-      if (mark.complete && mark.naturalWidth) context.drawImage(mark, 390, 290, 300, 300);
+      context.drawImage(mark, 390, 290, 300, 300);
       context.fillStyle = "#f3d79b"; context.font = "38px 'Shippori Mincho', serif"; wrapCanvasText(context, result.soul.line, 820).forEach((line, index) => context.fillText(line, 540, 650 + index * 54));
       drawCanvasShape(context, result.displayNorm, 540, 855, 130);
       context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("城でまず気になっているもの", 540, 1090);
       context.fillStyle = "#ece7dd"; context.font = "28px 'Noto Sans JP', sans-serif"; context.fillText(result.activityCards.map((item) => item.name).join("　／　"), 540, 1145);
       context.fillStyle = "#948d99"; context.font = "19px 'JetBrains Mono', monospace"; context.fillText(siteConfig.siteUrl?.toString() ?? "冥獄城　魂の診断", 540, 1238);
       context.font = "18px 'Noto Sans JP', sans-serif"; context.fillText("通話での居方の傾向です。入城の可否・身分・評価とは関係ありません。", 540, 1286);
+      rendered = true;
+    } catch {
+      if (loading) {
+        loading.hidden = false;
+        loading.textContent = "結果画像を描けませんでした。結果へ戻って、もう一度お試しください。";
+      }
     } finally {
-      canvas.hidden = false;
-      loading?.setAttribute("hidden", "");
       share?.setAttribute("aria-busy", "false");
-      if (save) save.disabled = false;
+      if (rendered) {
+        canvas.hidden = false;
+        loading?.setAttribute("hidden", "");
+        if (save) save.disabled = false;
+      } else {
+        canvas.hidden = true;
+        if (save) save.disabled = true;
+      }
     }
   };
   const renderShare = () => {
