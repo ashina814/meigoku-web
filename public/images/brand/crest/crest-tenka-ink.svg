@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="点火の魂（反転）" fill="none">
+  <path d="M3.5 50 A46.5 46.5 0 1 1 96.5 50 A46.5 46.5 0 1 1 3.5 50 Z" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M50 6 L94 50 L50 94 L6 50 Z" fill="none" stroke="#07060a" stroke-width="1.8"></path>
+  <path d="M50 12 L88 50 L50 88 L12 50 Z" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M20 50 A30 30 0 1 1 80 50 A30 30 0 1 1 20 50 Z" fill="none" stroke="#07060a" stroke-width="2"></path>
+  <path d="M21 59 L28 44" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M79 59 L72 44" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M73.33 26.67 L76.87 23.13" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M73.33 73.33 L76.87 76.87" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M26.67 73.33 L23.13 76.87" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M26.67 26.67 L23.13 23.13" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M50 9 V15" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M50 2.6 L53.4 6 L50 9.4 L46.6 6 Z" fill="#07060a"></path>
+  <path d="M94 46.6 L97.4 50 L94 53.4 L90.6 50 Z" fill="#07060a"></path>
+  <path d="M50 90.6 L53.4 94 L50 97.4 L46.6 94 Z" fill="#07060a"></path>
+  <path d="M6 46.6 L9.4 50 L6 53.4 L2.6 50 Z" fill="#07060a"></path>
+  <path d="M36 50 A14 14 0 1 1 64 50 A14 14 0 1 1 36 50 Z" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M50 44 L56 50 L50 56 L44 50 Z" fill="#07060a"></path>
+  <path d="M50 33 L50 23" fill="none" stroke="#07060a" stroke-width="2"></path>
+  <path d="M67 50 L77 50" fill="none" stroke="#07060a" stroke-width="2"></path>
+  <path d="M50 67 L50 77" fill="none" stroke="#07060a" stroke-width="2"></path>
+  <path d="M33 50 L23 50" fill="none" stroke="#07060a" stroke-width="2"></path>
+  <path d="M62.73 37.27 L66.26 33.74" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M62.73 62.73 L66.26 66.26" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M37.27 62.73 L33.74 66.26" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M37.27 37.27 L33.74 33.74" fill="none" stroke="rgba(7,6,10,.4)" stroke-width="1"></path>
+  <path d="M47.8 23 A2.2 2.2 0 1 1 52.2 23 A2.2 2.2 0 1 1 47.8 23 Z" fill="#07060a"></path>
+</svg>

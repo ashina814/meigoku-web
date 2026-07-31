@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="調律の魂（簡略）" fill="none">
+  <path d="M50 6 L94 50 L50 94 L6 50 Z" fill="none" stroke="#e0b26a" stroke-width="2.6"></path>
+  <path d="M50 3 L53 6 L50 9 L47 6 Z" fill="#e0b26a"></path>
+  <path d="M50 91 L53 94 L50 97 L47 94 Z" fill="#e0b26a"></path>
+  <path d="M22 50 H78" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M22 42 V58" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M78 42 V58" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M40 50 A10 10 0 1 1 60 50 A10 10 0 1 1 40 50 Z" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+</svg>

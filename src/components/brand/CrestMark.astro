@@ -1,18 +1,16 @@
 ---
-import { castleCrestPaths, crestPaths, type CrestPath, type SoulId } from "../../data/brand";
+import type { SoulId } from "../../data/brand";
 
 interface Props { soul?: SoulId; kind?: "soul" | "castle"; variant: "full" | "compact"; label?: string; inverted?: boolean; }
 const { soul, kind = "soul", variant, label, inverted = false } = Astro.props;
-const compact = variant === "compact";
-const paths: CrestPath[] = kind === "castle" ? castleCrestPaths(compact) : crestPaths(soul ?? "tenka", compact);
 const ariaLabel = label ?? (kind === "castle" ? "冥獄城の城紋" : `${soul ?? "tenka"}の魂紋`);
+const name = kind === "castle" ? "crest-castle" : `crest-${soul ?? "tenka"}`;
+const suffix = inverted ? "-ink" : variant === "compact" ? "-min" : "";
+const src = `/images/brand/crest/${name}${suffix}.svg`;
 ---
 
-<svg class:list={["crest-mark", { "crest-mark--inverted": inverted }]} viewBox="0 0 100 100" role="img" aria-label={ariaLabel}>
-  {paths.map((path) => <path d={path.d} fill={path.fill ? "currentColor" : "none"} stroke={path.fill ? "none" : "currentColor"} stroke-width={path.weight === "frame" ? 1.65 : path.weight === "detail" ? .8 : 1.25} stroke-dasharray={path.dash} stroke-linejoin="miter" stroke-linecap="square" />)}
-</svg>
+<img class="crest-mark" src={src} alt={ariaLabel} width="100" height="100" />
 
 <style>
-  .crest-mark { display:block; width:100%; height:100%; color:var(--color-lantern); }
-  .crest-mark--inverted { color:var(--color-exterior); }
+  .crest-mark { display:block; width:100%; height:100%; object-fit:contain; }
 </style>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="深縁の魂（簡略）" fill="none">
+  <path d="M50 6 L94 50 L50 94 L6 50 Z" fill="none" stroke="#e0b26a" stroke-width="2.6"></path>
+  <path d="M50 3 L53 6 L50 9 L47 6 Z" fill="#e0b26a"></path>
+  <path d="M50 91 L53 94 L50 97 L47 94 Z" fill="#e0b26a"></path>
+  <path d="M43 30 A7 7 0 1 1 57 30 A7 7 0 1 1 43 30 Z" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M50 37 V54" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M37 66 A13 13 0 1 1 63 66 A13 13 0 1 1 37 66 Z" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="宵見の魂（簡略）" fill="none">
+  <path d="M50 6 L94 50 L50 94 L6 50 Z" fill="none" stroke="#e0b26a" stroke-width="2.6"></path>
+  <path d="M50 3 L53 6 L50 9 L47 6 Z" fill="#e0b26a"></path>
+  <path d="M50 91 L53 94 L50 97 L47 94 Z" fill="#e0b26a"></path>
+  <path d="M50 26 A25 25 0 1 0 50 74" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M50 26 A32 32 0 0 1 50 74" fill="none" stroke="#e0b26a" stroke-width="3.2"></path>
+  <path d="M62 50 A4 4 0 1 1 70 50 A4 4 0 1 1 62 50 Z" fill="#e0b26a"></path>
+</svg>
