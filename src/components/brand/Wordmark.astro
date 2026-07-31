@@ -1,0 +1,18 @@
+---
+import CrestMark from "./CrestMark.astro";
+interface Props { orientation?: "horizontal" | "vertical"; compact?: boolean; }
+const { orientation = "horizontal", compact = false } = Astro.props;
+---
+
+<div class:list={["wordmark", `wordmark--${orientation}`, { "wordmark--compact": compact }]} aria-label="冥獄城">
+  <span class="wordmark__crest"><CrestMark variant="castle" /></span>
+  <span class="wordmark__name">冥獄城</span>
+  {!compact && <span class="wordmark__latin">MEIGOKU CASTLE</span>}
+</div>
+
+<style>
+  .wordmark { display:inline-flex; align-items:center; color:currentColor; font-family:var(--font-heading); }
+  .wordmark--horizontal { gap:.55rem; }.wordmark--vertical { flex-direction:column; gap:.35rem; text-align:center; }
+  .wordmark__crest { width:2.1rem; aspect-ratio:1; }.wordmark__name { font-size:1.15rem; font-weight:600; letter-spacing:.16em; white-space:nowrap; }.wordmark__latin { padding-inline-start:.65rem; border-inline-start:1px solid color-mix(in srgb,currentColor 36%,transparent); font-family:var(--font-mono); font-size:.53rem; letter-spacing:.16em; white-space:nowrap; }
+  .wordmark--vertical .wordmark__latin { padding:0; border:0; }.wordmark--compact .wordmark__crest { width:1.55rem; }
+</style>

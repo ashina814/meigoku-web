@@ -1,0 +1,73 @@
+<section class="soul-reading" aria-labelledby="soul-reading-title" data-soul-reading>
+  <div class="soul-reading__shell">
+    <p class="eyebrow">MEIGOKU CASTLE / SOUL READING</p>
+    <div class="soul-reading__app" aria-live="polite"></div>
+  </div>
+</section>
+
+<script>
+  import { crestPaths, type SoulId } from "../../data/brand";
+  import { activities, axes, axisLabels, soulQuestions } from "../../data/soul-reading";
+  import { calculateSoulReading } from "../../lib/soul-reading";
+
+  const root = document.querySelector<HTMLElement>("[data-soul-reading]");
+  const app = root?.querySelector<HTMLElement>(".soul-reading__app");
+  if (!root || !app) throw new Error("Soul reading root was not found.");
+
+  type Phase = "intro" | "question" | "interlude" | "result" | "share";
+  const state = { phase: "intro" as Phase, index: 0, answers: [] as number[], interests: [] as string[], wishes: [] as string[] };
+  const element = (tag: string, className?: string, text?: string) => { const node = document.createElement(tag); if (className) node.className = className; if (text) node.textContent = text; return node; };
+  const button = (text: string, className: string, action: () => void) => { const node = element("button", className, text) as HTMLButtonElement; node.type = "button"; node.addEventListener("click", action); return node; };
+  const crest = (id: SoulId, compact = false) => {
+    const ns = "http://www.w3.org/2000/svg"; const svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", "0 0 100 100"); svg.setAttribute("class", "soul-reading__crest"); svg.setAttribute("aria-hidden", "true");
+    crestPaths(id, compact).forEach((part) => { const path = document.createElementNS(ns, "path"); path.setAttribute("d", part.d); path.setAttribute("fill", part.fill ? "currentColor" : "none"); path.setAttribute("stroke", part.fill ? "none" : "currentColor"); path.setAttribute("stroke-width", String(part.weight === "frame" ? 1.65 : part.weight === "detail" ? .8 : 1.25)); path.setAttribute("stroke-dasharray", part.dash ?? ""); path.setAttribute("stroke-linejoin", "miter"); svg.append(path); }); return svg;
+  };
+  const clear = () => { app.replaceChildren(); };
+  const title = (heading: string, lead?: string) => { const header = element("header", "soul-reading__header"); const h1 = element("h1", undefined, heading); h1.id = "soul-reading-title"; header.append(h1); if (lead) header.append(element("p", "soul-reading__lead", lead)); return header; };
+  const progress = () => { const wrap = element("div", "soul-reading__progress"); wrap.setAttribute("aria-label", `質問 ${Math.min(state.index + 1, 14)} / 14`); for (let i = 0; i < 14; i += 1) wrap.append(element("span", i < state.index ? "is-complete" : i === state.index ? "is-current" : "")); return wrap; };
+
+  const renderIntro = () => {
+    clear(); const panel = element("div", "soul-reading__intro"); panel.append(crest("chouritsu")); panel.append(title("魂の診断", "通話での振る舞いから、冥獄城での最初の歩き方を静かに見つける十四の問い。"));
+    panel.append(element("p", "soul-reading__notice", "診断は入城の可否・身分・評価を決めるものではありません。回答や結果はこのブラウザの外へ送信されません。"));
+    panel.append(button("診断をはじめる", "cta cta--primary", () => { state.phase = "question"; render(); })); app.append(panel);
+  };
+  const renderInterlude = () => {
+    clear(); const panel = element("div", "soul-reading__interlude"); panel.append(crest("yoimi")); panel.append(title("ここまで、半分。", "まだ答えを急がなくて大丈夫。次の場面では、少し慣れたあとのあなたを見ていきます。")); panel.append(button("続きを見る", "cta cta--primary", () => { state.phase = "question"; render(); })); app.append(panel);
+  };
+  const selectSingle = (answer: number) => { state.answers[state.index] = answer; state.index += 1; state.phase = state.index === 6 ? "interlude" : "question"; render(); };
+  const togglePair = (target: "interests" | "wishes", id: string) => { const selected = state[target]; const at = selected.indexOf(id); if (at >= 0) selected.splice(at, 1); else if (selected.length < 2) selected.push(id); render(); };
+  const renderPairQuestion = (kind: "interests" | "wishes") => {
+    clear();
+    const isInterest = kind === "interests"; const selected = state[kind]; const question = isInterest ? "城でまず気になっているもの" : "一か月後に望んでいること"; const description = isInterest ? "気になる場所を二つ選んでください。活動カードはこの選択を基準に表示されます。" : "城でできていたら嬉しいことを二つ選んでください。これは結果の希望ブロックとして別に扱います。";
+    const panel = element("div", "soul-reading__question"); panel.append(progress()); panel.append(element("p", "soul-reading__scene", `第${isInterest ? "十三" : "十四"}問`)); panel.append(element("h2", undefined, question)); panel.append(element("p", "soul-reading__prompt", description));
+    const list = element("div", "soul-reading__options"); activities.forEach((activity) => { const chosen = selected.includes(activity.id); const disabled = selected.length === 2 && !chosen; const choice = button(isInterest ? activity.question13 : activity.question14, `soul-reading__option${chosen ? " is-selected" : ""}`, () => togglePair(kind, activity.id)); choice.setAttribute("aria-pressed", String(chosen)); choice.disabled = disabled; list.append(choice); }); panel.append(list);
+    panel.append(element("p", "soul-reading__selection-note", selected.length === 2 ? "二つ選びました。一つ外すと選び直せます。" : `あと${2 - selected.length}つ選んでください。`));
+    const next = button(isInterest ? "次の問いへ" : "魂を見る", "cta cta--primary", () => { if (selected.length !== 2) return; if (isInterest) state.index = 13; else state.phase = "result"; render(); }); next.disabled = selected.length !== 2; panel.append(next); app.append(panel);
+  };
+  const renderQuestion = () => {
+    if (state.index >= 12) { renderPairQuestion(state.index === 12 ? "interests" : "wishes"); return; }
+    clear(); const question = soulQuestions[state.index]; const panel = element("div", "soul-reading__question"); panel.append(progress()); panel.append(element("p", "soul-reading__scene", `${question.scene}　${question.chapter}`)); panel.append(element("h2", undefined, question.text));
+    const list = element("div", "soul-reading__options"); question.options.forEach((option, index) => list.append(button(option.text, "soul-reading__option", () => selectSingle(index)))); panel.append(list); app.append(panel);
+  };
+  const soulShape = (values: Record<string, number>) => {
+    const size = 240; const center = 120; const radius = 82; const points = axes.map((axis, index) => { const angle = (-90 + index * 60) * Math.PI / 180; const r = radius * values[axis]; return `${center + r * Math.cos(angle)},${center + r * Math.sin(angle)}`; }).join(" ");
+    const labels = axes.map((axis, index) => { const angle = (-90 + index * 60) * Math.PI / 180; const r = 110; return `<text x="${center + r * Math.cos(angle)}" y="${center + r * Math.sin(angle)}" text-anchor="middle">${axisLabels[axis]}</text>`; }).join("");
+    return `<svg class="soul-reading__shape" viewBox="0 0 ${size} ${size}" role="img" aria-label="六つの傾向から描かれた魂の形"><polygon points="120,38 191,79 191,161 120,202 49,161 49,79" class="soul-reading__shape-grid"/><polygon points="120,75 158,97 158,143 120,165 82,143 82,97" class="soul-reading__shape-grid"/><polygon points="${points}" class="soul-reading__shape-fill"/>${labels}</svg>`;
+  };
+  const drawCanvas = () => {
+    const canvas = app.querySelector<HTMLCanvasElement>("canvas"); if (!canvas) return; const result = calculateSoulReading(state.answers, state.interests, state.wishes); const context = canvas.getContext("2d"); if (!context) return;
+    context.fillStyle = "#0b080d"; context.fillRect(0, 0, 1080, 1350); const glow = context.createRadialGradient(540, 340, 12, 540, 340, 620); glow.addColorStop(0, "rgba(184,31,34,.55)"); glow.addColorStop(1, "rgba(184,31,34,0)"); context.fillStyle = glow; context.fillRect(0, 0, 1080, 1350); context.strokeStyle = "rgba(224,178,106,.32)"; context.strokeRect(44, 44, 992, 1262);
+    context.textAlign = "center"; context.fillStyle = "#948d99"; context.font = "20px monospace"; context.fillText("MEIGOKU CASTLE / SOUL READING", 540, 110); context.fillStyle = "#fff9ed"; context.font = "600 76px 'Shippori Mincho', serif"; context.fillText(result.soul.name, 540, 300);
+    context.save(); context.translate(540, 470); context.scale(2.4, 2.4); context.strokeStyle = "#e0b26a"; context.fillStyle = "#e0b26a"; crestPaths(result.soul.id).forEach((part) => { const path = new Path2D(part.d); context.setLineDash(part.dash?.split(" ").map(Number) ?? []); context.lineWidth = part.weight === "frame" ? 1.65 : part.weight === "detail" ? .8 : 1.25; if (part.fill) context.fill(path); else context.stroke(path); }); context.restore(); context.setLineDash([]);
+    context.fillStyle = "#f3d79b"; context.font = "38px 'Shippori Mincho', serif"; context.fillText(result.soul.line, 540, 690); context.fillStyle = "#948d99"; context.font = "22px sans-serif"; context.fillText("城でまず気になっているもの", 540, 1025); context.fillStyle = "#ece7dd"; context.font = "30px sans-serif"; context.fillText(result.activityCards.map((item) => item.name).join("　／　"), 540, 1078); context.fillStyle = "#948d99"; context.font = "18px sans-serif"; context.fillText("通話での傾向です。入城の可否・身分・評価とは関係ありません。", 540, 1285);
+  };
+  const renderResult = () => {
+    clear(); const result = calculateSoulReading(state.answers, state.interests, state.wishes); const panel = element("div", "soul-reading__result"); const identity = element("div", "soul-reading__identity"); identity.append(crest(result.soul.id)); identity.append(element("p", "soul-reading__latin", result.soul.latin)); identity.append(title(result.soul.name, result.soul.line)); panel.append(identity); const shape = element("div", "soul-reading__shape-wrap"); shape.innerHTML = soulShape(result.displayNorm); panel.append(shape);
+    const details = element("div", "soul-reading__details"); const detail = (label: string, value: string) => { const block = element("section", "soul-reading__detail"); block.append(element("h2", undefined, label), element("p", undefined, value)); details.append(block); };
+    detail("城でまず気になっているもの", result.activityCards.map((item) => item.name).join("／")); detail("一か月後に望んでいること", result.oneMonthWishes.map((item) => item.question14).join("／")); detail("入りやすい場面", result.easiest.join("／") || "自分のペースで様子を見られる場面"); detail("最初に試すこと", result.activityCards[0] ? `${result.activityCards[0].name}に関わる場所を、まず一つ覗いてみる。` : "気になる場所を一つ覗いてみる。"); panel.append(details);
+    const actions = element("div", "soul-reading__actions"); actions.append(button("結果画像をつくる", "cta cta--primary", () => { state.phase = "share"; render(); }), button("入城案内を見る", "cta cta--secondary", () => { location.href = "/join"; })); panel.append(actions); app.append(panel);
+  };
+  const renderShare = () => { clear(); const panel = element("div", "soul-reading__share"); panel.append(title("共有画像", "この画像はブラウザ内で生成されます。")); const canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1350; canvas.setAttribute("aria-label", "診断結果の共有画像"); panel.append(canvas); const actions = element("div", "soul-reading__actions"); actions.append(button("画像を保存する", "cta cta--primary", () => canvas.toBlob((blob) => { if (!blob) return; const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "meigoku-soul.png"; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 500); })), button("結果へ戻る", "cta cta--secondary", () => { state.phase = "result"; render(); })); panel.append(actions); app.append(panel); requestAnimationFrame(drawCanvas); };
+  const render = () => { if (state.phase === "intro") renderIntro(); else if (state.phase === "interlude") renderInterlude(); else if (state.phase === "result") renderResult(); else if (state.phase === "share") renderShare(); else renderQuestion(); };
+  render();
+</script>
