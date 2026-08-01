@@ -5,6 +5,7 @@ import {
   serializeSoulReadingProgress,
   type SavedSoulReadingProgress
 } from "../src/lib/soul-reading-progress";
+import { parseSoulReadingStorageChange } from "../src/scripts/soul-reading-storage";
 
 const ok = (condition: boolean, message: string) => {
   if (!condition) throw new Error(message);
@@ -32,8 +33,16 @@ const completed: SavedSoulReadingProgress = {
   wishes: ["creation", "planning"]
 };
 const completedSerialized = serializeSoulReadingProgress(completed);
+const unansweredQ1: SavedSoulReadingProgress = {
+  ...inProgress,
+  index: 0,
+  answers: [],
+  flaggedQuestions: []
+};
 
 ok(parseSoulReadingProgress(serializeSoulReadingProgress(inProgress), now)?.index === 5, "A valid in-progress reading must parse.");
+const parsedUnansweredQ1 = parseSoulReadingProgress(serializeSoulReadingProgress(unansweredQ1), now);
+ok(parsedUnansweredQ1?.screen === "question" && parsedUnansweredQ1.index === 0 && parsedUnansweredQ1.answers.length === 0, "An unanswered Q1 state must save and restore.");
 ok(parseSoulReadingProgress(completedSerialized, now)?.status === "completed", "A completed result must remain resumable.");
 ok(parseSoulReadingProgress(completedSerialized, now)?.screen === "result", "A completed result must restore directly to the result screen.");
 ok(!/(soul|score|axis|rawNorm|displayNorm)/i.test(completedSerialized.replace(/"(social|events|creation|planning)"/g, "")), "Saved progress must not contain a type, score, or axis value.");
@@ -72,5 +81,8 @@ ok(!parseSoulReadingProgress(JSON.stringify(prototypePayload), now), "Unexpected
 const legacyReveal = { ...completed, status: "in-progress" as const, screen: "reveal" as const };
 const normalizedReveal = sanitizeSoulReadingProgress(legacyReveal);
 ok(normalizedReveal?.status === "completed" && normalizedReveal.screen === "result", "A reveal reload must normalize to the completed result.");
+ok(parseSoulReadingStorageChange(null)?.kind === "deleted", "A null storage value must be treated as an external deletion.");
+const updatedStorageChange = parseSoulReadingStorageChange(serializeSoulReadingProgress(unansweredQ1));
+ok(updatedStorageChange?.kind === "updated" && updatedStorageChange.progress.answers.length === 0, "Q1 progress must be available as an external update.");
 
 console.log("Soul-reading progress verification passed.");

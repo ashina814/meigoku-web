@@ -6,6 +6,16 @@ import {
 
 export const soulReadingProgressStorageKey = "meigoku:soul-reading:progress:v1";
 
+export type SoulReadingStorageChange =
+  | { kind: "updated"; progress: SavedSoulReadingProgress }
+  | { kind: "deleted" };
+
+export function parseSoulReadingStorageChange(newValue: string | null): SoulReadingStorageChange | undefined {
+  if (newValue === null) return { kind: "deleted" };
+  const progress = parseSoulReadingProgress(newValue);
+  return progress ? { kind: "updated", progress } : undefined;
+}
+
 export function loadSoulReadingProgress(): SavedSoulReadingProgress | undefined {
   try {
     const raw = window.localStorage.getItem(soulReadingProgressStorageKey);

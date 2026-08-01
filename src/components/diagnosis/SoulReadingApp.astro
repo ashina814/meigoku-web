@@ -15,8 +15,10 @@
   import {
     clearSoulReadingProgress,
     loadSoulReadingProgress,
+    parseSoulReadingStorageChange,
     saveSoulReadingProgress,
-    soulReadingProgressStorageKey
+    soulReadingProgressStorageKey,
+    type SoulReadingStorageChange
   } from "../../scripts/soul-reading-storage";
 
   const root = document.querySelector<HTMLElement>("[data-soul-reading]");
@@ -36,7 +38,7 @@
     confirmingDiscard: false
   };
   let resumableProgress = loadSoulReadingProgress();
-  let externalProgress: SavedSoulReadingProgress | undefined;
+  let externalChange: SoulReadingStorageChange | undefined;
   const kanji = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四"];
   const activityNotes: Record<string, string> = {
     social: "人の声と、日々のやり取りに触れられる場所。",
@@ -181,25 +183,43 @@
     return confirmation;
   };
   const renderExternalUpdateNotice = () => {
-    if (!externalProgress) return;
+    if (!externalChange) return;
     const notice = element("aside", "soul-reading__external-update");
     notice.setAttribute("role", "status");
-    notice.append(
-      element("p", undefined, "別のタブで回答が更新されました。"),
-      button("最新の回答を読み込む", "soul-reading__button soul-reading__button--outline", () => {
-        if (!externalProgress) return;
-        restoreReading(externalProgress);
-        resumableProgress = undefined;
-        externalProgress = undefined;
-        render();
-      }),
-      button("このまま続ける", "soul-reading__button soul-reading__button--quiet", () => {
-        externalProgress = undefined;
-        if (state.screen === "reveal" || state.screen === "result" || state.screen === "share") persistCompleted();
-        else persistInProgress();
-        render();
-      })
-    );
+    if (externalChange.kind === "deleted") {
+      notice.append(
+        element("p", undefined, "別のタブで保存済みの回答が削除されました。"),
+        button("このタブも最初からにする", "soul-reading__button soul-reading__button--outline", () => {
+          resetReading();
+          resumableProgress = undefined;
+          externalChange = undefined;
+          render();
+        }),
+        button("このまま続ける", "soul-reading__button soul-reading__button--quiet", () => {
+          externalChange = undefined;
+          if (state.screen === "reveal" || state.screen === "result" || state.screen === "share") persistCompleted();
+          else persistInProgress();
+          render();
+        })
+      );
+    } else {
+      notice.append(
+        element("p", undefined, "別のタブで回答が更新されました。"),
+        button("最新の回答を読み込む", "soul-reading__button soul-reading__button--outline", () => {
+          if (!externalChange || externalChange.kind !== "updated") return;
+          restoreReading(externalChange.progress);
+          resumableProgress = undefined;
+          externalChange = undefined;
+          render();
+        }),
+        button("このまま続ける", "soul-reading__button soul-reading__button--quiet", () => {
+          externalChange = undefined;
+          if (state.screen === "reveal" || state.screen === "result" || state.screen === "share") persistCompleted();
+          else persistInProgress();
+          render();
+        })
+      );
+    }
     app.append(notice);
   };
   const clear = () => app.replaceChildren();
@@ -272,6 +292,7 @@
         discardReading();
         resetReading();
         state.screen = "question";
+        persistInProgress();
         render();
       }));
     }
@@ -626,10 +647,10 @@
     const actions = element("div", "soul-reading__share-actions"); const save = button("画像を保存する", "soul-reading__button soul-reading__button--outline", () => canvas.toBlob((blob) => { if (!blob) return; const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "meigoku-soul.png"; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 500); })); save.disabled = true; save.dataset.shareSave = ""; actions.append(save, button("結果へ戻る", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "result"; render(); }), element("p", "soul-reading__share-note", "ブラウザ内のCanvasで生成します。サーバー送信・外部API・課金は不要です。")); content.append(actions); panel.append(content); app.append(panel); requestAnimationFrame(drawCanvas);
   };
   window.addEventListener("storage", (event) => {
-    if (event.key !== soulReadingProgressStorageKey || !event.newValue) return;
-    const latest = loadSoulReadingProgress();
-    if (!latest) return;
-    externalProgress = latest;
+    if (event.key !== soulReadingProgressStorageKey) return;
+    const change = parseSoulReadingStorageChange(event.newValue);
+    if (!change) return;
+    externalChange = change;
     render();
   });
   render();
