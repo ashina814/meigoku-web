@@ -10,14 +10,35 @@
   import { soulResultTypes } from "../../data/soul-results";
   import { siteConfig } from "../../data/site";
   import { calculateSoulReading } from "../../lib/soul-reading";
+  import type { SavedSoulReadingProgress, SoulReadingProgressScreen } from "../../lib/soul-reading-progress";
   import { attachSoulShare } from "../../scripts/soul-share";
+  import {
+    clearSoulReadingProgress,
+    loadSoulReadingProgress,
+    parseSoulReadingStorageChange,
+    saveSoulReadingProgress,
+    soulReadingProgressStorageKey,
+    type SoulReadingStorageChange
+  } from "../../scripts/soul-reading-storage";
 
   const root = document.querySelector<HTMLElement>("[data-soul-reading]");
   const app = root?.querySelector<HTMLElement>(".soul-reading__app");
   if (!root || !app) throw new Error("Soul reading root was not found.");
 
-  type Screen = "start" | "question" | "interlude" | "pick" | "reveal" | "result" | "share";
-  const state = { screen: "start" as Screen, index: 0, answers: [] as number[], interests: [] as string[], wishes: [] as string[] };
+  type Screen = "start" | SoulReadingProgressScreen | "share";
+  const state = {
+    screen: "start" as Screen,
+    index: 0,
+    answers: [] as number[],
+    interests: [] as string[],
+    wishes: [] as string[],
+    flaggedQuestions: [] as number[],
+    reviewingQuestion: false,
+    reviewingPick: false,
+    confirmingDiscard: false
+  };
+  let resumableProgress = loadSoulReadingProgress();
+  let externalChange: SoulReadingStorageChange | undefined;
   const kanji = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四"];
   const activityNotes: Record<string, string> = {
     social: "人の声と、日々のやり取りに触れられる場所。",
@@ -78,6 +99,129 @@
     attachSoulShare(control);
     return control;
   };
+  const resetReading = () => {
+    state.screen = "start";
+    state.index = 0;
+    state.answers = [];
+    state.interests = [];
+    state.wishes = [];
+    state.flaggedQuestions = [];
+    state.reviewingQuestion = false;
+    state.reviewingPick = false;
+    state.confirmingDiscard = false;
+  };
+  const restoreReading = (progress: SavedSoulReadingProgress) => {
+    state.screen = progress.screen;
+    state.index = progress.index;
+    state.answers = [...progress.answers];
+    state.interests = [...progress.interests];
+    state.wishes = [...progress.wishes];
+    state.flaggedQuestions = [...progress.flaggedQuestions];
+    state.reviewingQuestion = false;
+    state.reviewingPick = false;
+  };
+  const hasFinishedReading = () => state.answers.length === 12 && state.interests.length === 2 && state.wishes.length === 2;
+  const inProgressPayload = (): SavedSoulReadingProgress | undefined => {
+    if (!["question", "interlude", "pick", "review"].includes(state.screen)) return undefined;
+    const reviewing = state.reviewingQuestion || state.reviewingPick;
+    return {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      status: "in-progress",
+      // An edit view always resumes at review, never as a normal-progress question.
+      screen: reviewing ? "review" : state.screen as SoulReadingProgressScreen,
+      index: reviewing ? 13 : state.index,
+      answers: [...state.answers],
+      interests: [...state.interests],
+      wishes: [...state.wishes],
+      flaggedQuestions: [...state.flaggedQuestions]
+    };
+  };
+  const persistInProgress = () => {
+    const progress = inProgressPayload();
+    if (progress) saveSoulReadingProgress(progress);
+    return progress;
+  };
+  const persistCompleted = () => {
+    if (!hasFinishedReading()) return undefined;
+    const progress: SavedSoulReadingProgress = {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      status: "completed",
+      screen: "result",
+      index: 13,
+      answers: [...state.answers],
+      interests: [...state.interests],
+      wishes: [...state.wishes],
+      flaggedQuestions: [...state.flaggedQuestions]
+    };
+    saveSoulReadingProgress(progress);
+    return progress;
+  };
+  const discardReading = () => {
+    clearSoulReadingProgress();
+    resumableProgress = undefined;
+  };
+  const renderDiscardConfirmation = () => {
+    const confirmation = element("section", "soul-reading__discard-confirmation");
+    confirmation.setAttribute("role", "dialog");
+    confirmation.setAttribute("aria-labelledby", "soul-reading-discard-title");
+    confirmation.append(
+      heading(2, "途中の回答を消して、最初から始めますか。", "soul-reading__discard-title"),
+      button("回答を消して始める", "soul-reading__button soul-reading__button--primary", () => {
+        discardReading();
+        resetReading();
+        state.screen = "question";
+        render();
+      }),
+      button("戻る", "soul-reading__button soul-reading__button--quiet", () => {
+        state.confirmingDiscard = false;
+        render();
+      })
+    );
+    confirmation.querySelector("h2")?.setAttribute("id", "soul-reading-discard-title");
+    return confirmation;
+  };
+  const renderExternalUpdateNotice = () => {
+    if (!externalChange) return;
+    const notice = element("aside", "soul-reading__external-update");
+    notice.setAttribute("role", "status");
+    if (externalChange.kind === "deleted") {
+      notice.append(
+        element("p", undefined, "別のタブで保存済みの回答が削除されました。"),
+        button("このタブも最初からにする", "soul-reading__button soul-reading__button--outline", () => {
+          resetReading();
+          resumableProgress = undefined;
+          externalChange = undefined;
+          render();
+        }),
+        button("このまま続ける", "soul-reading__button soul-reading__button--quiet", () => {
+          externalChange = undefined;
+          if (state.screen === "reveal" || state.screen === "result" || state.screen === "share") persistCompleted();
+          else persistInProgress();
+          render();
+        })
+      );
+    } else {
+      notice.append(
+        element("p", undefined, "別のタブで回答が更新されました。"),
+        button("最新の回答を読み込む", "soul-reading__button soul-reading__button--outline", () => {
+          if (!externalChange || externalChange.kind !== "updated") return;
+          restoreReading(externalChange.progress);
+          resumableProgress = undefined;
+          externalChange = undefined;
+          render();
+        }),
+        button("このまま続ける", "soul-reading__button soul-reading__button--quiet", () => {
+          externalChange = undefined;
+          if (state.screen === "reveal" || state.screen === "result" || state.screen === "share") persistCompleted();
+          else persistInProgress();
+          render();
+        })
+      );
+    }
+    app.append(notice);
+  };
   const clear = () => app.replaceChildren();
   const focusScreen = () => requestAnimationFrame(() => {
     document.getElementById("main-content")?.scrollIntoView({ block: "start" });
@@ -89,9 +233,11 @@
     else if (state.screen === "question") renderQuestion();
     else if (state.screen === "interlude") renderInterlude();
     else if (state.screen === "pick") renderPick();
+    else if (state.screen === "review") renderReview();
     else if (state.screen === "reveal") renderReveal();
     else if (state.screen === "result") renderResult();
     else renderShare();
+    renderExternalUpdateNotice();
     focusScreen();
   };
 
@@ -105,7 +251,52 @@
     const notes = element("ul", "soul-reading__notes");
     ["十二の場面と、二つの城内質問。約三分で終わります。", "回答は端末の中だけで判定します。サーバーへは送りません。", "入城の可否、身分、評価、役職適性とは関係ありません。"].forEach((note) => notes.append(element("li", undefined, note)));
     content.append(notes);
-    content.append(button("門をくぐる", "soul-reading__button soul-reading__button--primary", () => { state.screen = "question"; render(); }));
+    content.append(element("p", "soul-reading__privacy-note", "回答はこの端末のブラウザ内にだけ保存されます。外部送信はせず、30日後または「最初からやり直す」で削除されます。"));
+    if (resumableProgress?.status === "in-progress") {
+      const resume = element("aside", "soul-reading__resume");
+      resume.append(
+        sectionLabel("SAVED IN THIS BROWSER"),
+        element("p", "soul-reading__resume-copy", "前回の回答がこのブラウザに保存されています。30日間、続きから再開できます。"),
+        button("前回の続きから", "soul-reading__button soul-reading__button--primary", () => {
+          if (!resumableProgress) return;
+          restoreReading(resumableProgress);
+          resumableProgress = undefined;
+          render();
+        }),
+        button("最初からやり直す", "soul-reading__button soul-reading__button--quiet", () => {
+          state.confirmingDiscard = true;
+          render();
+        })
+      );
+      content.append(resume);
+    } else if (resumableProgress?.status === "completed") {
+      const resume = element("aside", "soul-reading__resume");
+      resume.append(
+        sectionLabel("SAVED RESULT IN THIS BROWSER"),
+        heading(2, "前回の結果が残っています", "soul-reading__resume-title"),
+        element("p", "soul-reading__resume-copy", "この端末で前回の結果をもう一度見られます。"),
+        button("前回の結果を見る", "soul-reading__button soul-reading__button--primary", () => {
+          if (!resumableProgress) return;
+          restoreReading(resumableProgress);
+          resumableProgress = undefined;
+          render();
+        }),
+        button("もう一度診断する", "soul-reading__button soul-reading__button--quiet", () => {
+          state.confirmingDiscard = true;
+          render();
+        })
+      );
+      content.append(resume);
+    } else {
+      content.append(button("門をくぐる", "soul-reading__button soul-reading__button--primary", () => {
+        discardReading();
+        resetReading();
+        state.screen = "question";
+        persistInProgress();
+        render();
+      }));
+    }
+    if (state.confirmingDiscard) content.append(renderDiscardConfirmation());
     panel.append(content); app.append(panel);
   };
 
@@ -127,15 +318,37 @@
   };
 
   const goBackFromQuestion = () => {
-    if (state.index === 0) state.screen = "start";
+    if (state.reviewingQuestion) {
+      state.reviewingQuestion = false;
+      state.screen = "review";
+    } else if (state.index === 0) {
+      resumableProgress = persistInProgress();
+      state.screen = "start";
+    }
     else state.index -= 1;
+    if (state.screen !== "start") persistInProgress();
+    render();
+  };
+  const toggleFlaggedQuestion = () => {
+    const at = state.flaggedQuestions.indexOf(state.index);
+    if (at >= 0) state.flaggedQuestions.splice(at, 1);
+    else state.flaggedQuestions.push(state.index);
+    persistInProgress();
     render();
   };
   const choose = (answer: number) => {
     state.answers[state.index] = answer;
+    if (state.reviewingQuestion) {
+      state.reviewingQuestion = false;
+      state.screen = "review";
+      persistInProgress();
+      render();
+      return;
+    }
     const next = state.index + 1;
     state.index = next;
     state.screen = next === 6 ? "interlude" : next >= 12 ? "pick" : "question";
+    persistInProgress();
     render();
   };
   const renderQuestion = () => {
@@ -148,14 +361,19 @@
     content.append(meta, heading(2, question.text, "soul-reading__question-title"));
     const options = element("div", "soul-reading__options");
     question.options.forEach((option, index) => {
-      const optionButton = button("", "soul-reading__option", () => choose(index));
+      const selected = state.answers[state.index] === index;
+      const optionButton = button("", `soul-reading__option${selected ? " is-selected" : ""}`, () => choose(index));
       optionButton.setAttribute("aria-label", `${String.fromCharCode(65 + index)}. ${option.text}`);
+      optionButton.setAttribute("aria-pressed", String(selected));
       optionButton.append(element("span", "soul-reading__option-key", String.fromCharCode(65 + index)), element("span", "soul-reading__option-text", option.text));
       options.append(optionButton);
     });
     content.append(options);
     const footer = element("div", "soul-reading__question-footer");
-    footer.append(element("span", undefined, "正解・不正解はありません"), button("← 一つ戻る", "soul-reading__back", goBackFromQuestion));
+    const flagged = state.flaggedQuestions.includes(state.index);
+    const flag = button(flagged ? "見直し候補に追加済み" : "あとで見直す", `soul-reading__back soul-reading__flag${flagged ? " is-flagged" : ""}`, toggleFlaggedQuestion);
+    flag.setAttribute("aria-pressed", String(flagged));
+    footer.append(element("span", undefined, "正解・不正解はありません"), flag, button(state.reviewingQuestion ? "← 見直しへ戻る" : "← 一つ戻る", "soul-reading__back", goBackFromQuestion));
     content.append(footer); panel.append(content); app.append(panel);
   };
 
@@ -166,7 +384,7 @@
     lamps.setAttribute("aria-label", "十二の灯のうち六つが点いています");
     for (let index = 0; index < 12; index += 1) lamps.append(element("span", index < 6 ? "is-lit" : ""));
     content.append(lamps, heading(1, "ここまでは、通話へ入った\n直後のあなた。", "soul-reading__interlude-title"), element("div", "soul-reading__rule"), element("p", "soul-reading__interlude-copy", "ここからは、少し慣れてからのあなたを見ます。"));
-    content.append(button("先へ進む", "soul-reading__button soul-reading__button--outline", () => { state.screen = "question"; render(); }));
+    content.append(button("先へ進む", "soul-reading__button soul-reading__button--outline", () => { state.screen = "question"; persistInProgress(); render(); }));
     panel.append(content); app.append(panel);
   };
 
@@ -178,7 +396,7 @@
       scene: interests ? "城内関心 — 十三" : "一か月後の希望 — 十四",
       title: interests ? "入城後、まず覗いてみたいものはどれですか。" : "一か月後、城でできていたらうれしいものはどれですか。",
       hint: interests ? "ここで選んだ二つが、結果の活動カードにそのまま出ます。" : "魂型の判定には使いません。",
-      buttonLabel: interests ? "次へ" : "魂を見にいく"
+      buttonLabel: state.reviewingPick ? "見直しへ戻る" : interests ? "次へ" : "回答を見直す"
     };
   };
   const togglePair = (id: string) => {
@@ -186,18 +404,27 @@
     const at = selected.indexOf(id);
     if (at >= 0) selected.splice(at, 1);
     else if (selected.length < 2) selected.push(id);
+    persistInProgress();
     render();
   };
   const backFromPick = () => {
-    if (state.index === 12) { state.index = 11; state.screen = "question"; }
+    if (state.reviewingPick) {
+      state.reviewingPick = false;
+      state.screen = "review";
+    } else if (state.index === 12) { state.index = 11; state.screen = "question"; }
     else state.index = 12;
+    persistInProgress();
     render();
   };
   const nextFromPick = () => {
     const selected = state.index === 12 ? state.interests : state.wishes;
     if (selected.length !== 2) return;
-    if (state.index === 12) state.index = 13;
-    else state.screen = "reveal";
+    if (state.reviewingPick) {
+      state.reviewingPick = false;
+      state.screen = "review";
+    } else if (state.index === 12) state.index = 13;
+    else state.screen = "review";
+    persistInProgress();
     render();
   };
   const renderPick = () => {
@@ -222,6 +449,73 @@
     next.disabled = selected.length !== 2;
     controls.append(next, button("← 一つ戻る", "soul-reading__back", backFromPick));
     content.append(controls); panel.append(content); app.append(panel);
+  };
+
+  const openReviewQuestion = (index: number) => {
+    state.index = index;
+    state.reviewingQuestion = true;
+    state.screen = "question";
+    persistInProgress();
+    render();
+  };
+  const openReviewPick = (index: 12 | 13) => {
+    state.index = index;
+    state.reviewingPick = true;
+    state.screen = "pick";
+    persistInProgress();
+    render();
+  };
+  const renderReview = () => {
+    const panel = element("section", "soul-reading__screen soul-reading__review");
+    const content = element("div", "soul-reading__review-content");
+    content.append(
+      sectionLabel("REVIEW YOUR ANSWERS"),
+      heading(1, "十四の答えを見直す", "soul-reading__review-title"),
+      element("p", "soul-reading__review-copy", "選び直したい回答だけを開けます。ここまでの答えは、城や身分の可否を決めるものではありません。")
+    );
+    const questions = element("ol", "soul-reading__review-list");
+    Array.from(soulQuestions.entries()).sort(([left], [right]) => Number(state.flaggedQuestions.includes(right)) - Number(state.flaggedQuestions.includes(left))).forEach(([index, question]) => {
+      const answer = question.options[state.answers[index]];
+      const item = element("li", `soul-reading__review-item${state.flaggedQuestions.includes(index) ? " is-flagged" : ""}`);
+      const copy = element("div", "soul-reading__review-copy-block");
+      copy.append(
+        element("p", "soul-reading__review-meta", `Q${index + 1} / ${question.scene}`),
+        element("p", "soul-reading__review-question", question.text),
+        element("p", "soul-reading__review-answer", answer?.text ?? "未回答")
+      );
+      if (state.flaggedQuestions.includes(index)) copy.append(element("p", "soul-reading__review-flag", "見直し候補に追加済み"));
+      item.append(copy, button("選び直す", "soul-reading__button soul-reading__button--quiet", () => openReviewQuestion(index)));
+      questions.append(item);
+    });
+    content.append(questions);
+    const picks = element("div", "soul-reading__review-picks");
+    ([
+      [12, "城でまず気になっているもの", state.interests],
+      [13, "一か月後に望んでいること", state.wishes]
+    ] as const).forEach(([index, label, selected]) => {
+      const section = element("section", "soul-reading__review-pick");
+      section.append(sectionLabel(label), element("p", undefined, selected.map((id) => {
+        const activity = activities.find((item) => item.id === id);
+        return activity ? index === 12 ? activity.question13 : activity.question14 : "";
+      }).filter(Boolean).join("　／　")), button("選び直す", "soul-reading__button soul-reading__button--quiet", () => openReviewPick(index)));
+      picks.append(section);
+    });
+    content.append(picks);
+    const actions = element("div", "soul-reading__review-actions");
+    actions.append(
+      button("この回答で魂を見る", "soul-reading__button soul-reading__button--primary", () => {
+        if (!persistCompleted()) return;
+        state.screen = "reveal";
+        render();
+      }),
+      button("← Q14へ戻る", "soul-reading__back", () => {
+        state.index = 13;
+        state.screen = "pick";
+        persistInProgress();
+        render();
+      })
+    );
+    content.append(actions); panel.append(content); app.append(panel);
   };
 
   const renderReveal = () => {
@@ -283,11 +577,11 @@
     result.activityCards.forEach((activity) => { const card = element("div", "soul-reading__activity-card"); card.append(heading(2, activity.name), element("p", undefined, activityNotes[activity.id])); activitySection.append(card); });
     const wishes = element("div", "soul-reading__wishes"); wishes.append(sectionLabel("一か月後に望んでいること")); result.oneMonthWishes.forEach((wish) => { const item = element("p", "soul-reading__wish"); item.append(element("span", undefined, "—"), document.createTextNode(wish.question14)); wishes.append(item); }); activitySection.append(wishes); action.append(activitySection);
     const first = element("section", "soul-reading__first"); first.append(sectionLabel("最初に試すこと"), element("p", undefined, result.soul.first)); action.append(first);
-    const actions = element("div", "soul-reading__result-actions"); const join = document.createElement("a"); join.href = "/join"; join.className = "soul-reading__button soul-reading__button--primary"; join.textContent = "入城案内を見る　→"; actions.append(join, resultUrlShare(result.soul.id), button("結果画像をつくる", "soul-reading__button soul-reading__button--outline", () => { state.screen = "share"; render(); }), button("もう一度診断する", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "start"; state.index = 0; state.answers = []; state.interests = []; state.wishes = []; render(); }), element("p", "soul-reading__disclaimer", "通話での居方の傾向です。入城の可否、身分、評価、役職適性とは関係ありません。")); action.append(actions);
+    const actions = element("div", "soul-reading__result-actions"); const join = document.createElement("a"); join.href = "/join"; join.className = "soul-reading__button soul-reading__button--primary"; join.textContent = "入城案内を見る　→"; actions.append(join, resultUrlShare(result.soul.id), button("結果画像をつくる", "soul-reading__button soul-reading__button--outline", () => { state.screen = "share"; render(); }), button("もう一度診断する", "soul-reading__button soul-reading__button--quiet", () => { state.confirmingDiscard = true; render(); }), element("p", "soul-reading__disclaimer", "通話での居方の傾向です。入城の可否、身分、評価、役職適性とは関係ありません。")); action.append(actions);
     layout.append(reading, action); panel.append(layout);
     const otherSouls = element("section", "soul-reading__other-souls"); otherSouls.append(sectionLabel("ほかの魂の一行")); const grid = element("div", "soul-reading__other-souls-grid");
     soulResultTypes.forEach((type) => { const card = element("article", `soul-reading__other-soul${type.id === result.soul.id ? " is-current" : ""}`); card.append(crest(type.id, "compact", "soul-reading__other-crest")); const copy = element("div", "soul-reading__other-copy"); copy.append(heading(2, type.name), element("p", undefined, type.line)); card.append(copy); grid.append(card); });
-    otherSouls.append(grid); panel.append(otherSouls); app.append(panel);
+    otherSouls.append(grid); panel.append(otherSouls); if (state.confirmingDiscard) panel.append(renderDiscardConfirmation()); app.append(panel);
   };
 
   const loadImage = (src: string) => new Promise<HTMLImageElement>((resolve) => { const image = new Image(); image.onload = () => resolve(image); image.onerror = () => resolve(image); image.src = src; });
@@ -352,5 +646,12 @@
     content.append(sectionLabel("SHARE IMAGE / 1080 × 1350")); const loading = element("p", "soul-reading__share-loading", "魂の形を描いています……"); loading.setAttribute("role", "status"); const canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1350; canvas.hidden = true; canvas.setAttribute("aria-label", "診断結果の共有画像"); content.append(loading, canvas);
     const actions = element("div", "soul-reading__share-actions"); const save = button("画像を保存する", "soul-reading__button soul-reading__button--outline", () => canvas.toBlob((blob) => { if (!blob) return; const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "meigoku-soul.png"; link.click(); setTimeout(() => URL.revokeObjectURL(link.href), 500); })); save.disabled = true; save.dataset.shareSave = ""; actions.append(save, button("結果へ戻る", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "result"; render(); }), element("p", "soul-reading__share-note", "ブラウザ内のCanvasで生成します。サーバー送信・外部API・課金は不要です。")); content.append(actions); panel.append(content); app.append(panel); requestAnimationFrame(drawCanvas);
   };
+  window.addEventListener("storage", (event) => {
+    if (event.key !== soulReadingProgressStorageKey) return;
+    const change = parseSoulReadingStorageChange(event.newValue);
+    if (!change) return;
+    externalChange = change;
+    render();
+  });
   render();
 </script>
