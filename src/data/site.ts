@@ -6,8 +6,8 @@ const indexable = import.meta.env.PUBLIC_SITE_INDEXABLE === "true";
 export const siteConfig = {
   name: "冥獄城",
   defaultTitle: "冥獄城",
-  defaultDescription: "冥獄城公式サイト。世界観と暮らし、居場所や活動の案内を通じて、Discordコミュニティ「冥獄城」を紹介します。",
-  defaultOgImage: "/og-default.svg",
+  defaultDescription: "冥獄城は、通話と交流を中心に、身分制度・役職・Land経済・複数の交流空間を持つDiscordコミュニティです。",
+  defaultOgImage: "/og-default.png",
   // Only a validated, stable public HTTPS origin may be used for metadata.
   siteUrl,
   // A string copy keeps the public configuration safe for browser-side consumers.

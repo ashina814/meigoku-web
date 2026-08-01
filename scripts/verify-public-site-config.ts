@@ -1,6 +1,7 @@
 // @ts-nocheck -- this Node verification script runs through tsx without Node typings in Astro's checker.
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
+import sharp from "sharp";
 import { parsePublicSiteUrl, resolveRobots } from "../src/lib/public-site-config";
 
 const ok = (condition: boolean, message: string) => {
@@ -33,9 +34,16 @@ const [site, headers, envExample, deploymentDoc] = await Promise.all([
   readFile(path.join(root, ".env.example"), "utf8"),
   readFile(path.join(root, "docs", "deployment-cloudflare-pages.md"), "utf8")
 ]);
+const defaultOgImage = path.join(root, "public", "og-default.png");
+await access(defaultOgImage);
+const defaultOgMetadata = await sharp(defaultOgImage).metadata();
+const officialDescription = "冥獄城は、通話と交流を中心に、身分制度・役職・Land経済・複数の交流空間を持つDiscordコミュニティです。";
 
-ok(!site.includes("公開情報を準備中"), "The old placeholder description must not remain in site metadata.");
-ok(site.includes("冥獄城公式サイト。"), "Site metadata must provide the approved public description.");
+ok(!site.includes("【公開原稿確認中】"), "The old placeholder description must not remain in site metadata.");
+ok(site.includes(`defaultDescription: "${officialDescription}"`), "Site metadata must exactly match the approved public description.");
+ok(site.includes('defaultOgImage: "/og-default.png"'), "General pages must use the default PNG OGP image.");
+ok(defaultOgMetadata.format === "png", "The default OGP asset must be a PNG.");
+ok(defaultOgMetadata.width === 1200 && defaultOgMetadata.height === 630, "The default OGP PNG must be 1200×630.");
 ok(headers.includes("https://meigoku-web.pages.dev/*\n  X-Robots-Tag: noindex, nofollow"), "pages.dev production must be noindex.");
 ok(headers.includes("https://:version.meigoku-web.pages.dev/*\n  X-Robots-Tag: noindex, nofollow"), "pages.dev previews must be noindex.");
 ["X-Content-Type-Options: nosniff", "Referrer-Policy: strict-origin-when-cross-origin", "X-Frame-Options: DENY", "Permissions-Policy: camera=(), microphone=(), geolocation=()"].forEach((header) => ok(headers.includes(header), `Missing required security header: ${header}`));
