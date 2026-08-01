@@ -12,15 +12,18 @@ interface Props {
   fullTitle?: string;
   description?: string;
   robots?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  ogType?: "website" | "article";
   hideFooter?: boolean;
   hideEntryBar?: boolean;
   hideStatusStrip?: boolean;
 }
 
-const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots, hideFooter = false, hideEntryBar = false, hideStatusStrip = false } = Astro.props;
+const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots, ogImage = siteConfig.defaultOgImage, ogImageAlt, ogType = "website", hideFooter = false, hideEntryBar = false, hideStatusStrip = false } = Astro.props;
 const pageTitle = fullTitle ?? createPageTitle(title);
 const canonicalUrl = createCanonicalUrl(Astro.url.pathname);
-const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUrl).href : undefined;
+const ogImageUrl = canonicalUrl ? new URL(ogImage, canonicalUrl).href : undefined;
 ---
 
 <!doctype html>
@@ -33,16 +36,20 @@ const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUr
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600&family=Shippori+Mincho:wght@500;600;700&display=swap" rel="stylesheet" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
     {canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
     {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    {ogImageUrl && <meta property="og:image:width" content="1200" />}
+    {ogImageUrl && <meta property="og:image:height" content="630" />}
+    {ogImageUrl && ogImageAlt && <meta property="og:image:alt" content={ogImageAlt} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+    {ogImageUrl && ogImageAlt && <meta name="twitter:image:alt" content={ogImageAlt} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{pageTitle}</title>
   </head>

@@ -13,7 +13,9 @@
     "preview": "astro preview",
     "check": "astro check",
     "test:soul-reading": "tsx scripts/verify-soul-reading.ts",
-    "test:join": "tsx scripts/verify-join.ts"
+    "test:join": "tsx scripts/verify-join.ts",
+    "test:soul-sharing": "tsx scripts/verify-soul-sharing.ts",
+    "generate:soul-og": "tsx scripts/generate-soul-og.ts"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
