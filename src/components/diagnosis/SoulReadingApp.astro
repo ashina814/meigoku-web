@@ -327,7 +327,7 @@
       drawCanvasShape(context, result.displayNorm, 540, 855, 130);
       context.fillStyle = "#948d99"; context.font = "20px 'JetBrains Mono', monospace"; context.fillText("城でまず気になっているもの", 540, 1090);
       context.fillStyle = "#ece7dd"; context.font = "28px 'Noto Sans JP', sans-serif"; context.fillText(result.activityCards.map((item) => item.name).join("　／　"), 540, 1145);
-      context.fillStyle = "#948d99"; context.font = "19px 'JetBrains Mono', monospace"; context.fillText(siteConfig.siteUrl?.toString() ?? "冥獄城　魂の診断", 540, 1238);
+      context.fillStyle = "#948d99"; context.font = "19px 'JetBrains Mono', monospace"; context.fillText(siteConfig.publicSiteUrl ?? "冥獄城　魂の診断", 540, 1238);
       context.font = "18px 'Noto Sans JP', sans-serif"; context.fillText("通話での居方の傾向です。入城の可否・身分・評価とは関係ありません。", 540, 1286);
       rendered = true;
     } catch {

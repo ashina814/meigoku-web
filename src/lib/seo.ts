@@ -5,5 +5,7 @@ export function createPageTitle(pageTitle?: string): string {
 }
 
 export function createCanonicalUrl(pathname: string): URL | undefined {
-  return siteConfig.siteUrl ? new URL(pathname, siteConfig.siteUrl) : undefined;
+  if (!siteConfig.siteUrl) return undefined;
+  const canonicalPath = pathname === "/" ? "/" : pathname.replace(/\/+$/, "");
+  return new URL(canonicalPath, siteConfig.siteUrl);
 }
