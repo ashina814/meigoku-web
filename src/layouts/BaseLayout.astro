@@ -1,6 +1,8 @@
 ---
 import SiteFooter from "../components/global/SiteFooter.astro";
 import SiteHeader from "../components/global/SiteHeader.astro";
+import StatusStrip from "../components/global/StatusStrip.astro";
+import EntryBar from "../components/global/EntryBar.astro";
 import { siteConfig } from "../data/site";
 import { createCanonicalUrl, createPageTitle } from "../lib/seo";
 import "../styles/global.css";
@@ -11,9 +13,11 @@ interface Props {
   description?: string;
   robots?: string;
   hideFooter?: boolean;
+  hideEntryBar?: boolean;
+  hideStatusStrip?: boolean;
 }
 
-const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots, hideFooter = false } = Astro.props;
+const { title, fullTitle, description = siteConfig.defaultDescription, robots = siteConfig.robots, hideFooter = false, hideEntryBar = false, hideStatusStrip = false } = Astro.props;
 const pageTitle = fullTitle ?? createPageTitle(title);
 const canonicalUrl = createCanonicalUrl(Astro.url.pathname);
 const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUrl).href : undefined;
@@ -42,10 +46,12 @@ const ogImageUrl = canonicalUrl ? new URL(siteConfig.defaultOgImage, canonicalUr
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>{pageTitle}</title>
   </head>
-  <body>
+  <body class:list={[!hideEntryBar && "has-entry-bar"]}>
     <a class="skip-link" href="#main-content">本文へ移動</a>
     <SiteHeader currentPath={Astro.url.pathname} />
+    {!hideStatusStrip && <StatusStrip />}
     <main id="main-content"><slot /></main>
     {!hideFooter && <SiteFooter />}
+    {!hideEntryBar && <EntryBar />}
   </body>
 </html>

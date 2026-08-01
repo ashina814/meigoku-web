@@ -1,0 +1,17 @@
+---
+import { joinConfig, recruitmentMessages } from "../../data/join";
+import { formatClosedWeekdays, formatSessionTimes } from "../../lib/join";
+
+const sessionTimes = formatSessionTimes();
+const closedWeekdays = formatClosedWeekdays();
+---
+
+<aside class="status-strip" data-recruitment-state={joinConfig.recruitmentState} aria-label="入城受付の状況">
+  <div class="container status-strip__inner">
+    <p class="status-strip__state"><span class="status-strip__dot" aria-hidden="true"></span><span>受付状態：</span>{recruitmentMessages[joinConfig.recruitmentState]}</p>
+    <p>{sessionTimes ?? "説明会の日程は入城案内でご確認ください"}</p>
+    {closedWeekdays && <p>{closedWeekdays}休止</p>}
+    <p>時間外面接：{joinConfig.outOfHoursInterview}</p>
+    <a href="/join">入城案内を見る <span aria-hidden="true">→</span></a>
+  </div>
+</aside>

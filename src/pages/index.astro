@@ -1,31 +1,37 @@
 ---
-import BeginnerFaqSection from "../components/home/BeginnerFaqSection.astro";
-import DistrictsSection from "../components/home/DistrictsSection.astro";
-import ExperiencesSection from "../components/home/ExperiencesSection.astro";
-import FinalCtaSection from "../components/home/FinalCtaSection.astro";
-import GateTransition from "../components/home/GateTransition.astro";
-import HeroSection from "../components/home/HeroSection.astro";
-import HomeMotion from "../components/home/HomeMotion.astro";
-import NamedSoulSection from "../components/home/NamedSoulSection.astro";
-import RolesSection from "../components/home/RolesSection.astro";
-import SoulJourneySection from "../components/home/SoulJourneySection.astro";
-import WorldSection from "../components/home/WorldSection.astro";
+import CrestMark from "../components/brand/CrestMark.astro";
+import { canShowInvite, joinConfig } from "../data/join";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import "../styles/home.css";
+import "../styles/site-pages.css";
+
+const activities = [
+  ["通話と日常交流", "見る、聞く、短く話すところから、人との接点を育てる。"],
+  ["イベントとゲーム", "企画や遊びをきっかけに、同じ時間を過ごす。"],
+  ["配信と創作", "配信を見る・行う、イラストや装飾、台本などを作る。"],
+  ["役職とLand", "仕事や個人店、城内のサービスを通して城を支える。"]
+];
 ---
 
-<BaseLayout fullTitle="冥獄城｜名もなき魂よ、城門を叩け。" description="世界観の中で、人と出会い、名前・居場所・役割を育てるDiscordコミュニティ「冥獄城」の公式サイト。">
-  <div class="home-page">
-    <HeroSection />
-    <WorldSection />
-    <GateTransition />
-    <ExperiencesSection />
-    <NamedSoulSection />
-    <SoulJourneySection />
-    <DistrictsSection />
-    <RolesSection />
-    <BeginnerFaqSection />
-    <FinalCtaSection />
-  </div>
-  <HomeMotion />
+<BaseLayout fullTitle="冥獄城｜名もなき魂よ、城門を叩け。" description="通話と交流を中心に、イベント、創作、役職、Land経済を通して居場所を育てるDiscordコミュニティ。">
+  <article class="site-page">
+    <section class="site-page__hero site-page__hero--castle" aria-labelledby="home-title">
+      <div class="container site-page__hero-grid">
+        <div>
+          <p class="site-page__eyebrow">MEIGOKU CASTLE / DISCORD COMMUNITY</p>
+          <h1 id="home-title">名もなき魂よ、<br />城門を叩け。</h1>
+          <p class="site-page__hero-copy">冥獄城は、通話と交流を中心に、イベント、創作、役職、Land経済などを通して、人との接点や自分の居場所を育てていくDiscordコミュニティです。最初から世界観に詳しくある必要も、何者になるかを決めておく必要もありません。</p>
+          <div class="site-page__hero-actions">
+            <a class="site-page__cta" href="/soul-reading">魂の診断を受ける</a>
+            <a class="site-page__cta site-page__cta--quiet" href="/join">入城案内を見る</a>
+          </div>
+          {canShowInvite() && <a class="site-page__external" href={joinConfig.inviteUrl} target="_blank" rel="noopener noreferrer">Discordで城門を叩く ↗ 外部リンク</a>}
+        </div>
+        <CrestMark kind="castle" variant="full" label="冥獄城の城紋" />
+      </div>
+    </section>
+
+    <section class="site-page__section site-page__section--interior" aria-labelledby="what-title"><div class="container site-page__section-grid"><p class="site-page__section-heading">冥獄城でできること</p><div class="site-page__content"><p class="site-page__eyebrow">WAYS TO STAY</p><h2 id="what-title">一つの関わり方に、決めなくていい。</h2><p class="site-page__lead">雑談だけでなく、イベント、ゲーム、配信、創作、仕事、経済活動があります。見る、聞く、少し話す、企画へ参加する、作る側へ回る。城には複数の入口があります。</p><div class="site-page__grid site-page__grid--four">{activities.map(([title, text]) => <article class="site-page__card"><h3>{title}</h3><p>{text}</p></article>)}</div></div></div></section>
+    <section class="site-page__section" aria-labelledby="begin-title"><div class="container site-page__section-grid"><p class="site-page__section-heading">初めての魂へ</p><div class="site-page__content"><p class="site-page__eyebrow">YOU MAY BEGIN QUIETLY</p><h2 id="begin-title">世界観を覚えてから、来る必要はありません。</h2><p class="site-page__lead">まず案内を読み、説明を受け、城の空気を知るところから始められます。入城直後から、うまく話し続けることを求める場所ではありません。</p><div class="site-page__note"><ul><li>最初から自分の役割を決める必要はありません。</li><li>魂の診断は入口案内であり、入城・身分・評価・役職適性には影響しません。</li></ul></div><a class="site-page__next" href="/world"><span>冥獄城の過ごし方を知る</span><span aria-hidden="true">→</span></a></div></div></section>
+    <section class="site-page__section site-page__section--muted" aria-labelledby="rank-title"><div class="container site-page__section-grid"><p class="site-page__section-heading">身分と居場所</p><div class="site-page__content"><h2 id="rank-title">亡霊から、少しずつ城を知る。</h2><p class="site-page__lead">入城後は「亡霊」から始まり、城内での交流と評価を経て「魔人」「魔族」へ進む身分制度があります。身分は人としての価値を示す順位ではなく、城との関わり方や段階を表すものです。</p><a class="site-page__next" href="/ranks"><span>身分・階級を知る</span><span aria-hidden="true">→</span></a></div></div></section>
+  </article>
 </BaseLayout>

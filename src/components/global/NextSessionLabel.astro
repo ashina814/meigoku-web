@@ -1,0 +1,36 @@
+---
+import { joinConfig, recruitmentMessages } from "../../data/join";
+import { formatSessionTimes } from "../../lib/join";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+const schedule = formatSessionTimes() ?? "説明会の日程は入城案内でご確認ください";
+const initialText = joinConfig.recruitmentState === "open"
+  ? schedule
+  : recruitmentMessages[joinConfig.recruitmentState];
+---
+
+<span class={className} data-next-session data-next-session-fallback={initialText}>{initialText}</span>
+
+<script>
+  import { joinConfig } from "../../data/join";
+  import { nextSessionLabel } from "../../lib/join";
+
+  const updateNextSessions = () => {
+    if (joinConfig.recruitmentState !== "open") return;
+
+    const label = nextSessionLabel();
+    document.querySelectorAll<HTMLElement>("[data-next-session]").forEach((element) => {
+      element.textContent = label ?? element.dataset.nextSessionFallback ?? "説明会の案内は入城案内でご確認ください";
+    });
+  };
+
+  updateNextSessions();
+  window.setInterval(updateNextSessions, 60_000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") updateNextSessions();
+  });
+</script>

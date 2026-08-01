@@ -1,36 +1,7 @@
 ---
-import { getCollection } from "astro:content";
-import PlaceholderNotice from "../../components/ui/PlaceholderNotice.astro";
-import { isPubliclyVisible } from "../../lib/publication";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-
-const publicRanks = await getCollection("ranks", (entry) => isPubliclyVisible(entry.data));
+import "../../styles/site-pages.css";
+const ranks = [["亡霊", "入城後、最初に持つ身分です。人や空間に触れながら、冥獄城での過ごし方を知っていく段階です。", "交流や施設を利用でき、評価を受けて魔人を目指します。仕事・役職には就けません。"],["魔人", "評価を経て進む身分です。城の中で交流を続けながら、一般の仕事や役職を担えるようになります。", "重要な制度変更に対して意見を提出でき、一般職に就けます。"],["魔族", "現行の身分制度における上位身分です。冥獄城へ継続して関わり、城の一員として定着した段階を表します。", "現在、魔人との施設利用上の差は大きくありません。"]];
+const criteria = [["声の良さ", "声質・音質・聞き取りやすさ・安定感を総合的に見ます。"],["コミュニケーション力", "複数人通話で、話題を出す・会話を進める・空気を整える力を見ます。"],["浮上率", "サーバーへの参加頻度と、通話・チャットへ継続して関わっているかを見ます。"],["鯖理解度", "冥獄城の目的・規則・世界観を理解して行動できているかに加え、参加姿勢や貢献意欲も見ます。"]];
 ---
-
-<BaseLayout title="身分・階級">
-  <article class="container">
-    <header>
-      <h1>身分・階級</h1>
-    </header>
-    <section aria-labelledby="difference-title">
-      <h2 id="difference-title">身分と役職の違いに関する案内</h2>
-      <PlaceholderNotice>【公開原稿確認中】</PlaceholderNotice>
-    </section>
-    <section aria-labelledby="status-title">
-      <h2 id="status-title">身分導線</h2>
-      <PlaceholderNotice>【承認後に掲載】</PlaceholderNotice>
-    </section>
-    <section aria-labelledby="role-title">
-      <h2 id="role-title">評価に関わる役職</h2>
-      <PlaceholderNotice>【説明文未確定】</PlaceholderNotice>
-    </section>
-    {publicRanks.length > 0 && (
-      <section aria-labelledby="published-ranks-title">
-        <h2 id="published-ranks-title">公開済みの身分・階級情報</h2>
-        <ul>
-          {publicRanks.map((rank) => <li>{rank.data.title}</li>)}
-        </ul>
-      </section>
-    )}
-  </article>
-</BaseLayout>
+<BaseLayout title="身分・階級" description="冥獄城の亡霊・魔人・魔族という身分と、役職・評価の公開範囲を案内します。"><article class="site-page"><section class="site-page__hero"><div class="container"><p class="site-page__eyebrow">RANKS / RELATIONSHIPS</p><h1>身分・階級</h1><p class="site-page__hero-copy">冥獄城には、亡霊、魔人、魔族という身分があります。これは人としての価値や強さを示す順位ではなく、入城後の段階と、城との関わり方を表す仕組みです。</p></div></section><section class="site-page__section site-page__section--interior"><div class="container site-page__section-grid"><p class="site-page__section-heading">基本導線</p><div class="site-page__content"><h2>説明を受け、亡霊として城に入る。</h2><div class="site-page__flow"><div><strong>説明会または面接</strong><p>城の基本を知る時間。</p></div><div><strong>亡霊</strong><p>人や空間に触れる。</p></div><div><strong>魔人</strong><p>評価を経て進む。</p></div><div><strong>魔族</strong><p>上位評価を経て定着する。</p></div></div><p class="site-page__note">魂の診断は、この導線や評価には使いません。</p></div></div></section><section class="site-page__section"><div class="container site-page__section-grid"><p class="site-page__section-heading">三つの身分</p><div class="site-page__content"><div class="site-page__grid">{ranks.map(([name, lead, details]) => <article class="site-page__card"><h2>{name}</h2><p>{lead}</p><p>{details}</p></article>)}</div></div></div></section><section class="site-page__section site-page__section--muted"><div class="container site-page__section-grid"><p class="site-page__section-heading">身分と評価</p><div class="site-page__content"><h2>身分と役職は、別の仕組みです。</h2><p class="site-page__lead">身分は城との関わりの段階を表し、役職は門番、イベンター、魔剣士、刻印師など、実際に担当する仕事や役割を表します。役職に就かず、交流を中心に過ごすこともできます。</p><div class="site-page__grid site-page__grid--four">{criteria.map(([name, text]) => <article class="site-page__card"><h3>{name}</h3><p>{text}</p></article>)}</div><div class="site-page__note"><strong>公開しないもの</strong><ul><li>個別の評価記録、不合格理由、個人への評価コメント</li><li>点数、印、合格閾値、評価期限、個別記録</li><li>未確定の制度案や統治役職の詳細な権限表</li></ul></div><a class="site-page__next" href="/join"><span>入城案内を見る</span><span>→</span></a></div></div></section></article></BaseLayout>

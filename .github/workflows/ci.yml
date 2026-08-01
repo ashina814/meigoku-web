@@ -31,5 +31,8 @@ jobs:
       - name: Verify soul-reading rules
         run: npm run test:soul-reading
 
+      - name: Verify published join schedule
+        run: npm run test:join
+
       - name: Build static site
         run: npm run build
