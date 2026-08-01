@@ -17,6 +17,7 @@
     "test:soul-sharing": "tsx scripts/verify-soul-sharing.ts",
     "test:public-site-config": "tsx scripts/verify-public-site-config.ts",
     "test:built-public-metadata": "tsx scripts/verify-built-public-metadata.ts",
+    "test:soul-progress": "tsx scripts/verify-soul-progress.ts",
     "generate:soul-og": "tsx scripts/generate-soul-og.ts"
   },
   "devDependencies": {

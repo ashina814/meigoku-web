@@ -40,6 +40,9 @@ jobs:
       - name: Verify soul-reading rules
         run: npm run test:soul-reading
 
+      - name: Verify soul-reading progress storage
+        run: npm run test:soul-progress
+
       - name: Build origin-less static site
         run: npm run build
 
