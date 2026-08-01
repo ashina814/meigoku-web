@@ -28,8 +28,8 @@ jobs:
       - name: Check Astro project
         run: npm run check
 
-      - name: Verify soul-reading rules
-        run: npm run test:soul-reading
+      - name: Verify public site configuration
+        run: npm run test:public-site-config
 
       - name: Verify shareable soul results
         run: npm run test:soul-sharing
@@ -37,5 +37,22 @@ jobs:
       - name: Verify published join schedule
         run: npm run test:join
 
-      - name: Build static site
+      - name: Verify soul-reading rules
+        run: npm run test:soul-reading
+
+      - name: Build origin-less static site
         run: npm run build
+
+      - name: Verify origin-less static metadata
+        run: npm run test:built-public-metadata -- originless
+
+      - name: Build Pages verification metadata
+        env:
+          PUBLIC_SITE_URL: https://meigoku-web.pages.dev
+          PUBLIC_SITE_INDEXABLE: "false"
+        run: |
+          rm -rf dist
+          npm run build
+
+      - name: Verify Pages verification metadata
+        run: npm run test:built-public-metadata -- pages-verification

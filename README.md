@@ -18,6 +18,10 @@ npm run build
 npm run preview
 ```
 
+## Cloudflare Pages 検証公開
+
+Cloudflare Pages の公開設定、環境変数、公開後の確認、ロールバックは [docs/deployment-cloudflare-pages.md](docs/deployment-cloudflare-pages.md) にまとめています。管理者が公開を承認した招待URLのみ、`src/data/join.ts` で一元管理して掲載できます。Discord ID、チャンネルID、ロールID、非公開URLなどの内部情報は追加しません。
+
 型・Astroの確認は `npm run check` で実行できます。
 
 ## 構成
