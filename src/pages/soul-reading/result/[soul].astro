@@ -1,0 +1,92 @@
+---
+import CrestMark from "../../../components/brand/CrestMark.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { soulResultTypes } from "../../../data/soul-results";
+import "../../../styles/soul-result.css";
+
+export function getStaticPaths() {
+  return soulResultTypes.map((soul) => ({ params: { soul: soul.id }, props: { soul } }));
+}
+
+const { soul } = Astro.props as { soul: (typeof soulResultTypes)[number] };
+const description = `${soul.line} 冥獄城の「魂の診断」で、通話での居方を八つの魂型から読み解きます。`;
+const ogImage = `/images/diagnosis/og/og-soul-${soul.id}.png`;
+const ogImageAlt = `冥獄城 魂の診断 ${soul.name} ${soul.line}`;
+---
+
+<BaseLayout
+  fullTitle={`${soul.name}｜魂の診断｜冥獄城`}
+  description={description}
+  ogImage={ogImage}
+  ogImageAlt={ogImageAlt}
+  ogType="article"
+>
+  <article class="soul-result-page" data-soul-share data-soul-id={soul.id}>
+    <section class="soul-result-page__hero" aria-labelledby="soul-result-title">
+      <div class="container soul-result-page__hero-inner">
+        <p class="soul-result-page__eyebrow">SOUL READING / SHARED RESULT</p>
+        <div class="soul-result-page__crest"><CrestMark soul={soul.id} variant="full" label={`${soul.name}の魂紋`} /></div>
+        <p class="soul-result-page__latin">{soul.latin}</p>
+        <h1 id="soul-result-title">{soul.name}</h1>
+        <p class="soul-result-page__line">{soul.line}</p>
+      </div>
+    </section>
+
+    <section class="soul-result-page__reading">
+      <div class="container soul-result-page__reading-inner">
+        <div class="soul-result-page__body">
+          {soul.body.map((paragraph) => <p>{paragraph}</p>)}
+        </div>
+        <aside class="soul-result-page__first" aria-label="最初に試すこと">
+          <p class="soul-result-page__label">最初に試すこと</p>
+          <p>{soul.first}</p>
+        </aside>
+        <div class="soul-result-page__actions">
+          <a class="soul-result-page__cta soul-result-page__cta--primary" href="/soul-reading">あなたの魂も見てみる</a>
+          <button class="soul-result-page__cta soul-result-page__cta--outline" type="button" data-soul-share-button>この魂型を共有</button>
+          <p class="soul-result-page__share-status" data-soul-share-status aria-live="polite"></p>
+          <div class="soul-result-page__manual-copy" data-soul-share-manual hidden>
+            <label for={`soul-share-url-${soul.id}`}>結果URL</label>
+            <input id={`soul-share-url-${soul.id}`} type="text" readonly />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="soul-result-page__castle" aria-labelledby="castle-introduction-title">
+      <div class="container soul-result-page__castle-inner">
+        <p class="soul-result-page__eyebrow">WHERE THIS READING WAS MADE</p>
+        <h2 id="castle-introduction-title">この診断を作った場所</h2>
+        <p>冥獄城は、通話と交流を中心に、身分制度・役職・Land経済・複数の交流空間を持つDiscordコミュニティです。</p>
+        <nav class="soul-result-page__links" aria-label="冥獄城を知る">
+          <a href="/world">冥獄城とは <span aria-hidden="true">→</span></a>
+          <a href="/ranks">身分と評価を知る <span aria-hidden="true">→</span></a>
+          <a href="/join">入城案内を見る <span aria-hidden="true">→</span></a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="soul-result-page__disclaimer">
+      <div class="container">
+        <p>魂の診断は、通話での居方を楽しむためのコンテンツです。入城の可否、身分、評価、役職適性には影響しません。</p>
+      </div>
+    </section>
+
+    <section class="soul-result-page__eight" aria-label="八つの魂型">
+      <div class="container soul-result-page__eight-inner">
+        <div class="soul-result-page__eight-marks" aria-hidden="true">
+          {soulResultTypes.map((type) => <span><CrestMark soul={type.id} variant="compact" /></span>)}
+        </div>
+        <p>八つのうち、あなたはどの居方だろう。</p>
+        <a class="soul-result-page__eight-link" href="/soul-reading">魂の診断をはじめる <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+  </article>
+</BaseLayout>
+
+<script>
+  import { attachSoulShare } from "../../../scripts/soul-share";
+
+  const shareRoot = document.querySelector<HTMLElement>("[data-soul-share]");
+  if (shareRoot) attachSoulShare(shareRoot);
+</script>

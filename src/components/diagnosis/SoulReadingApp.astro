@@ -10,6 +10,7 @@
   import { soulResultTypes } from "../../data/soul-results";
   import { siteConfig } from "../../data/site";
   import { calculateSoulReading } from "../../lib/soul-reading";
+  import { attachSoulShare } from "../../scripts/soul-share";
 
   const root = document.querySelector<HTMLElement>("[data-soul-reading]");
   const app = root?.querySelector<HTMLElement>(".soul-reading__app");
@@ -54,6 +55,29 @@
     return image;
   };
   const sectionLabel = (text: string) => element("p", "soul-reading__label", text);
+  const resultUrlShare = (soulId: SoulId) => {
+    const control = element("div", "soul-reading__url-share");
+    control.dataset.soulShare = "";
+    control.dataset.soulId = soulId;
+    const shareButton = button("結果URLを共有", "soul-reading__button soul-reading__button--outline", () => undefined);
+    shareButton.dataset.soulShareButton = "";
+    const status = element("p", "soul-reading__share-status");
+    status.dataset.soulShareStatus = "";
+    status.setAttribute("aria-live", "polite");
+    const manual = element("div", "soul-reading__manual-copy");
+    manual.dataset.soulShareManual = "";
+    manual.hidden = true;
+    const label = element("label", undefined, "結果URL") as HTMLLabelElement;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.readOnly = true;
+    input.id = `soul-result-url-${soulId}`;
+    label.htmlFor = input.id;
+    manual.append(label, input);
+    control.append(shareButton, status, manual);
+    attachSoulShare(control);
+    return control;
+  };
   const clear = () => app.replaceChildren();
   const focusScreen = () => requestAnimationFrame(() => {
     document.getElementById("main-content")?.scrollIntoView({ block: "start" });
@@ -259,7 +283,7 @@
     result.activityCards.forEach((activity) => { const card = element("div", "soul-reading__activity-card"); card.append(heading(2, activity.name), element("p", undefined, activityNotes[activity.id])); activitySection.append(card); });
     const wishes = element("div", "soul-reading__wishes"); wishes.append(sectionLabel("一か月後に望んでいること")); result.oneMonthWishes.forEach((wish) => { const item = element("p", "soul-reading__wish"); item.append(element("span", undefined, "—"), document.createTextNode(wish.question14)); wishes.append(item); }); activitySection.append(wishes); action.append(activitySection);
     const first = element("section", "soul-reading__first"); first.append(sectionLabel("最初に試すこと"), element("p", undefined, result.soul.first)); action.append(first);
-    const actions = element("div", "soul-reading__result-actions"); const join = document.createElement("a"); join.href = "/join"; join.className = "soul-reading__button soul-reading__button--primary"; join.textContent = "入城案内を見る　→"; actions.append(join, button("結果画像をつくる", "soul-reading__button soul-reading__button--outline", () => { state.screen = "share"; render(); }), button("もう一度診断する", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "start"; state.index = 0; state.answers = []; state.interests = []; state.wishes = []; render(); }), element("p", "soul-reading__disclaimer", "通話での居方の傾向です。入城の可否、身分、評価、役職適性とは関係ありません。")); action.append(actions);
+    const actions = element("div", "soul-reading__result-actions"); const join = document.createElement("a"); join.href = "/join"; join.className = "soul-reading__button soul-reading__button--primary"; join.textContent = "入城案内を見る　→"; actions.append(join, resultUrlShare(result.soul.id), button("結果画像をつくる", "soul-reading__button soul-reading__button--outline", () => { state.screen = "share"; render(); }), button("もう一度診断する", "soul-reading__button soul-reading__button--quiet", () => { state.screen = "start"; state.index = 0; state.answers = []; state.interests = []; state.wishes = []; render(); }), element("p", "soul-reading__disclaimer", "通話での居方の傾向です。入城の可否、身分、評価、役職適性とは関係ありません。")); action.append(actions);
     layout.append(reading, action); panel.append(layout);
     const otherSouls = element("section", "soul-reading__other-souls"); otherSouls.append(sectionLabel("ほかの魂の一行")); const grid = element("div", "soul-reading__other-souls-grid");
     soulResultTypes.forEach((type) => { const card = element("article", `soul-reading__other-soul${type.id === result.soul.id ? " is-current" : ""}`); card.append(crest(type.id, "compact", "soul-reading__other-crest")); const copy = element("div", "soul-reading__other-copy"); copy.append(heading(2, type.name), element("p", undefined, type.line)); card.append(copy); grid.append(card); });
