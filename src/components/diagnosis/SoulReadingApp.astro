@@ -249,7 +249,7 @@
     content.append(element("div", "soul-reading__rule"));
     content.append(element("p", "soul-reading__start-copy", "正解はありません。うまい返しを選ぶ必要もありません。\n実際にそうなりやすい方を選んでください。\n最後に、城で気になるものと、一か月後の希望を二つずつ聞きます。"));
     const notes = element("ul", "soul-reading__notes");
-    ["十二の場面と、二つの城内質問。約三分で終わります。", "回答は端末の中だけで判定します。サーバーへは送りません。", "入城の可否、身分、評価、役職適性とは関係ありません。"].forEach((note) => notes.append(element("li", undefined, note)));
+    ["十二の場面と、二つの城内質問。約三分で終わります。", "説明会や時間外面接までの待ち時間にも遊べます。", "回答は端末の中だけで判定します。サーバーへは送りません。", "入城の可否、身分、評価、役職適性とは関係ありません。"].forEach((note) => notes.append(element("li", undefined, note)));
     content.append(notes);
     content.append(element("p", "soul-reading__privacy-note", "回答はこの端末のブラウザ内にだけ保存されます。外部送信はせず、30日後または「最初からやり直す」で削除されます。"));
     if (resumableProgress?.status === "in-progress") {
