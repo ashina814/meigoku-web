@@ -1,4 +1,3 @@
-// @ts-nocheck -- this Node verification script runs through tsx without Node typings in Astro's checker.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { soulResultTypes } from "../src/data/soul-results";
@@ -51,6 +50,8 @@ const [world, home, join, readingApp] = await Promise.all([
 
 ok(world.includes("評価サーバーとは"), "The world page must explain the evaluation server.");
 ["声の良さ", "コミュニケーション力", "浮上率", "鯖理解度"].forEach((criterion) => ok(world.includes(criterion), `The world page must name the public criterion: ${criterion}.`));
+const evaluationLead = "冥獄城では、説明会または時間外面接を終えると、まず「亡霊」として城内へ入ります。その後、普段の通話や交流を通して、声の良さ、コミュニケーション力、浮上率、鯖理解度を見ながら、評価を経て魔人、さらに魔族へ進む仕組みです。";
+ok(world.includes(evaluationLead), "The world page must use the approved evaluation-server explanation.");
 ok(world.includes("説明会は、そこで合否を決める試験ではありません。"), "The world page must state that the orientation is not a pass/fail test.");
 ok(world.includes("任意コンテンツ") && world.includes("提出も必要ありません"), "The world page must make the soul reading optional and submission-free.");
 ok(home.includes(">魂の診断で遊ぶ<"), "The home CTA must frame the soul reading as play.");
