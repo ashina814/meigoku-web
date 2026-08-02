@@ -28,12 +28,13 @@ ok(resolveRobots(true, undefined) === "noindex, nofollow", "Indexing requires a 
 ok(resolveRobots(false, undefined) === "noindex, nofollow", "An origin-less site must remain noindex.");
 
 const root = process.cwd();
-const [site, headers, envExample, deploymentDoc] = await Promise.all([
+const [site, rawHeaders, envExample, deploymentDoc] = await Promise.all([
   readFile(path.join(root, "src", "data", "site.ts"), "utf8"),
   readFile(path.join(root, "public", "_headers"), "utf8"),
   readFile(path.join(root, ".env.example"), "utf8"),
   readFile(path.join(root, "docs", "deployment-cloudflare-pages.md"), "utf8")
 ]);
+const headers = rawHeaders.replace(/\r\n/g, "\n");
 const defaultOgImage = path.join(root, "public", "og-default.png");
 await access(defaultOgImage);
 const defaultOgMetadata = await sharp(defaultOgImage).metadata();
